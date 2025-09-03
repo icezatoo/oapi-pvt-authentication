@@ -49,6 +49,21 @@ export function OAuthConfiguration() {
     return Math.round((completedFields / fields.length) * 100)
   }
 
+  // URL building functions
+  // const buildAuthBaseUrl = () => {
+  //   const sandboxPrefix = config.type === "sandbox" ? "sandbox-" : "";
+  //   const endpointPrefix = config.endpoint === "paotang-id" ? "paotang-id" : "paotang-pass";
+
+  //   if (config.environment === "PRD") {
+  //     const baseUrl = config.type === "sandbox" ?
+  //       `https://${endpointPrefix}-sandbox.devops.krungthai.com/` :
+  //       `https://${endpointPrefix}.devops.krungthai.com/`;
+  //     return baseUrl;
+  //   } else {
+  //     return `https://${endpointPrefix}-${sandboxPrefix}external-${environment.toLowerCase()}.th-service.co.in/`;
+  //   }
+  // };
+
   return (
     <div className="container mx-auto p-6 space-y-8 max-w-6xl">
       {/* Enhanced Header with Status */}
@@ -143,6 +158,17 @@ export function OAuthConfiguration() {
           </CardContent>
         </Card>
         {/* Action Buttons */}
+        {!isFormValid && (
+          <div className="mt-4 p-4 bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-900 rounded-lg">
+            <div className="flex items-start space-x-2">
+              <AlertCircle className="h-5 w-5 text-orange-500 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-orange-800 dark:text-orange-200">Configuration Incomplete</p>
+                <p className="text-xs text-orange-700 dark:text-orange-300 mt-1">Please fill in all required fields: Client ID, Client Secret, and Redirect URI.</p>
+              </div>
+            </div>
+          </div>
+        )}
         <ActionButtons
           isFormValid={isFormValid}
           onReset={() => {
@@ -161,17 +187,6 @@ export function OAuthConfiguration() {
           onQrCodeAuth={() => alert('QR Code Authentication will be implemented here')}
           onAppToAppAuth={() => alert('App-to-App Authentication will be implemented here')}
         />
-        {!isFormValid && (
-          <div className="mt-4 p-4 bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-900 rounded-lg">
-            <div className="flex items-start space-x-2">
-              <AlertCircle className="h-5 w-5 text-orange-500 mt-0.5" />
-              <div>
-                <p className="text-sm font-medium text-orange-800 dark:text-orange-200">Configuration Incomplete</p>
-                <p className="text-xs text-orange-700 dark:text-orange-300 mt-1">Please fill in all required fields: Client ID, Client Secret, and Redirect URI.</p>
-              </div>
-            </div>
-          </div>
-        )}
       </form>
     </div>
   )

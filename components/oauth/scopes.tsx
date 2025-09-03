@@ -1,10 +1,11 @@
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import useScopes from '@/hooks/use-scopes'
 import { AuthType } from '@/types/oauth'
-import { Users } from 'lucide-react'
+import { Check, Users, X } from 'lucide-react'
 
 type ScopesProps = {
   authType: AuthType
@@ -22,6 +23,21 @@ const Scopes = ({ authType, selectedScopes, updateScopes }: ScopesProps) => {
     updateScopes(updatedScopes)
   }
 
+  // Get all optional scope IDs
+  const optionalScopeIds = scopes?.filter(scope => !scope.required).map(scope => scope.id) || []
+  const allOptionalSelected = optionalScopeIds.length > 0 && optionalScopeIds.every(id => selectedScopes.includes(id))
+  const someOptionalSelected = optionalScopeIds.some(id => selectedScopes.includes(id)) && !allOptionalSelected
+
+  const handleSelectAll = () => {
+    const requiredScopeIds = scopes?.filter(scope => scope.required).map(scope => scope.id) || []
+    updateScopes([...new Set([...requiredScopeIds, ...optionalScopeIds])])
+  }
+
+  const handleDeselectAll = () => {
+    const requiredScopeIds = scopes?.filter(scope => scope.required).map(scope => scope.id) || []
+    updateScopes([...requiredScopeIds])
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -33,7 +49,29 @@ const Scopes = ({ authType, selectedScopes, updateScopes }: ScopesProps) => {
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
+        <div className="flex justify-end space-x-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleDeselectAll}
+            disabled={!someOptionalSelected && !allOptionalSelected}
+            className="h-8"
+          >
+            <X className="h-4 w-4 mr-1.5" />
+            Deselect All
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleSelectAll}
+            disabled={allOptionalSelected}
+            className="h-8"
+          >
+            <Check className="h-4 w-4 mr-1.5" />
+            Select All
+          </Button>
+        </div>
         <Table>
           <TableHeader>
             <TableRow>
