@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label'
 import { Progress } from '@/components/ui/progress'
 import useOAuthConfig from '@/hooks/use-oauth-config'
-import { AlertCircle, CheckCircle, ExternalLink } from 'lucide-react'
+import { AlertCircle, CheckCircle, ExternalLink, QrCode, Smartphone } from 'lucide-react'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { useState } from 'react'
 import AuthenticationProvider from './oauth/authentication-provider'
 import ClientConfig from './oauth/client-config'
@@ -16,9 +17,10 @@ import AuthenticationSettings from './oauth/authentication-settings'
 import { ENVIRONMENT_CONFIG } from '@/config/config'
 
 export function OAuthConfiguration() {
-  const { config, updateField, updateScopes } = useOAuthConfig()
+  const { config, updateField, updateScopes, resetConfig: resetConfigHook, saveToStorage, clearStorage, changeAuthType } = useOAuthConfig()
   const [isTestingConnection, setIsTestingConnection] = useState(false)
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [showResetDialog, setShowResetDialog] = useState(false)
 
   const testConnection = async () => {
     setIsTestingConnection(true)
@@ -82,7 +84,7 @@ export function OAuthConfiguration() {
       <form onSubmit={handleSubmit} className="space-y-8">
         {' '}
         {/* Enhanced Authentication Type Selection */}
-        <AuthenticationProvider authType={config.authType} updateField={updateField} />
+        <AuthenticationProvider authType={config.authType} changeAuthType={changeAuthType} />
         {/* Enhanced Environment Configuration */}
         <EnvironmentConfig environment={config.environment} type={config.type} updateField={updateField} />
         {/* Enhanced Client Configuration */}
@@ -146,23 +148,61 @@ export function OAuthConfiguration() {
           <CardContent className="pt-6">
             <div className="flex flex-col lg:flex-row gap-4 justify-between items-center">
               <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                <Button variant="outline" type="button" onClick={testConnection} disabled={!isFormValid || isTestingConnection} className="flex-1 lg:flex-none">
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  {isTestingConnection ? 'Testing...' : 'Test Connection'}
+                <div className="flex flex-col sm:flex-row gap-3 w-full">
+                  {/* <Button variant="outline" type="button" onClick={testConnection} disabled={!isFormValid || isTestingConnection} className="flex-1 lg:flex-none">
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    {isTestingConnection ? 'Testing...' : 'Test Connection'}
+                  </Button> */}
+                  <Button variant="outline" type="button" disabled={!isFormValid} onClick={() => alert('QR Code Authentication will be implemented here')} className="flex-1 lg:flex-none">
+                    <QrCode className="h-4 w-4 mr-2" />
+                    QR Code Auth
+                  </Button>
+                  <Button variant="outline" type="button" disabled={!isFormValid} onClick={() => alert('App-to-App Authentication will be implemented here')} className="flex-1 lg:flex-none">
+                    <Smartphone className="h-4 w-4 mr-2" />
+                    App-to-App Auth
+                  </Button>
+                </div>
+                <Button variant="ghost" type="button" onClick={() => setShowResetDialog(true)} className="flex-1 lg:flex-none">
+                  Reset Configuration
                 </Button>
+
+                <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Reset Configuration</AlertDialogTitle>
+                      <AlertDialogDescription>Are you sure you want to reset the configuration? This will clear all fields and cannot be undone.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={(e: React.MouseEvent) => {
+                          e.preventDefault()
+                          clearStorage()
+                          resetConfigHook()
+                          setConnectionStatus('idle')
+                          setShowResetDialog(false)
+                        }}
+                      >
+                        Reset Configuration
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>{' '}
+              <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   type="button"
                   onClick={() => {
-                    setConnectionStatus('idle')
+                    const success = saveToStorage()
+                    if (success) {
+                      alert('Configuration saved as draft successfully!')
+                    } else {
+                      alert('Failed to save configuration. Please try again.')
+                    }
                   }}
                   className="flex-1 lg:flex-none"
                 >
-                  Reset Configuration
-                </Button>
-              </div>{' '}
-              <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                <Button variant="outline" type="button" className="flex-1 lg:flex-none">
                   Save as Draft
                 </Button>
                 <Button type="submit" disabled={!isFormValid} className="flex-1 lg:flex-none min-w-[160px]">

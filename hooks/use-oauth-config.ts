@@ -1,5 +1,5 @@
 import { OAuthConfig } from '@/types/oauth'
-import { useReducer, useMemo } from 'react'
+import { useReducer, useMemo, useEffect } from 'react'
 
 // Default configuration factory
 const createDefaultConfig = (): OAuthConfig => ({
@@ -21,6 +21,7 @@ type OAuthConfigAction =
   | { type: 'UPDATE_SCOPES'; payload: string[] }
   | { type: 'RESET_CONFIG' }
   | { type: 'SET_CONFIG'; payload: OAuthConfig }
+  | { type: 'CHANGE_AUTH_TYPE'; payload: OAuthConfig['authType'] }
 
 // Reducer function
 const oauthConfigReducer = (state: OAuthConfig, action: OAuthConfigAction): OAuthConfig => {
@@ -48,6 +49,12 @@ const oauthConfigReducer = (state: OAuthConfig, action: OAuthConfigAction): OAut
 
     case 'RESET_CONFIG':
       return createDefaultConfig()
+      
+    case 'CHANGE_AUTH_TYPE':
+      return {
+        ...createDefaultConfig(),
+        authType: action.payload
+      }
 
     default:
       return state
@@ -62,13 +69,45 @@ interface UseOAuthConfigReturn {
   updateScopes: (scopes: string[]) => void
   setConfig: (config: OAuthConfig) => void
   resetConfig: () => void
+  changeAuthType: (authType: OAuthConfig['authType']) => void
+  saveToStorage: () => boolean
+  clearStorage: () => boolean
+  loadFromStorage: () => boolean
   isValid: boolean
   errors: Partial<Record<keyof OAuthConfig, string>>
 }
 
+const STORAGE_KEY = 'oauth_config_draft'
+
 const useOAuthConfig = (initialConfig?: Partial<OAuthConfig>): UseOAuthConfigReturn => {
+  // Load saved config from localStorage on client-side only
+  const loadSavedConfig = (): OAuthConfig | null => {
+    // This ensures we only run on the client side
+    if (typeof window === 'undefined') return null
+
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY)
+      return saved ? JSON.parse(saved) : null
+    } catch (error) {
+      console.error('Error loading from localStorage:', error)
+      return null
+    }
+  }
+
   // Initialize state with useReducer
-  const [config, dispatch] = useReducer(oauthConfigReducer, initialConfig ? { ...createDefaultConfig(), ...initialConfig } : createDefaultConfig())
+  const [config, dispatch] = useReducer(oauthConfigReducer, createDefaultConfig())
+
+  // Load saved config on client-side mount
+  useEffect(() => {
+    if (initialConfig) {
+      dispatch({ type: 'SET_CONFIG', payload: { ...createDefaultConfig(), ...initialConfig } })
+    } else {
+      const savedConfig = loadSavedConfig()
+      if (savedConfig) {
+        dispatch({ type: 'SET_CONFIG', payload: savedConfig })
+      }
+    }
+  }, [initialConfig])
 
   // Action creators - these are automatically memoized by useReducer
   const updateConfig = (updates: Partial<OAuthConfig>) => {
@@ -90,7 +129,47 @@ const useOAuthConfig = (initialConfig?: Partial<OAuthConfig>): UseOAuthConfigRet
     dispatch({ type: 'SET_CONFIG', payload: newConfig })
   }
 
+  const changeAuthType = (authType: OAuthConfig['authType']) => {
+    if (config.authType !== authType) {
+      dispatch({ type: 'CHANGE_AUTH_TYPE', payload: authType })
+    }
+  }
+
+  const saveToStorage = (config: OAuthConfig) => {
+    if (typeof window === 'undefined') return false
+
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(config))
+      return true
+    } catch (error) {
+      console.error('Failed to save config to localStorage:', error)
+      return false
+    }
+  }
+
+  const loadFromStorage = (): boolean => {
+    const saved = loadSavedConfig()
+    if (saved) {
+      dispatch({ type: 'SET_CONFIG', payload: saved })
+      return true
+    }
+    return false
+  }
+
+  const clearStorage = (): boolean => {
+    if (typeof window === 'undefined') return false
+
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+      return true
+    } catch (error) {
+      console.error('Failed to clear config from localStorage:', error)
+      return false
+    }
+  }
+
   const resetConfig = () => {
+    clearStorage()
     dispatch({ type: 'RESET_CONFIG' })
   }
 
@@ -133,6 +212,10 @@ const useOAuthConfig = (initialConfig?: Partial<OAuthConfig>): UseOAuthConfigRet
     updateScopes,
     setConfig,
     resetConfig,
+    changeAuthType,
+    saveToStorage: () => saveToStorage(config),
+    clearStorage,
+    loadFromStorage,
     isValid: validation.isValid,
     errors: validation.errors,
   }
