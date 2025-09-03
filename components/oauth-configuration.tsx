@@ -1,85 +1,31 @@
 'use client'
 
-import { useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Label } from '@/components/ui/label'
 import { Progress } from '@/components/ui/progress'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Settings, Shield, Key, Users, ExternalLink, CheckCircle, AlertCircle, Copy, Lock } from 'lucide-react'
-
-type AuthType = 'paotang' | 'nextpass'
-
-interface OAuthConfig {
-  authType: AuthType
-  environment: 'development' | 'staging' | 'production'
-  clientId: string
-  clientSecret: string
-  redirectUri: string
-  scope: string[]
-  authUrl: string
-  tokenUrl: string
-  // Authentication Settings
-  requireMFA: boolean
-  sessionTimeout: number
-  tokenExpiry: number
-  allowRefreshToken: boolean
-  requirePKCE: boolean
-}
-
-const defaultScopes = [
-  { id: 'read', name: 'Read', description: 'Read access to user data', required: true },
-  { id: 'write', name: 'Write', description: 'Write access to user data', required: false },
-  { id: 'profile', name: 'Profile', description: 'Access to user profile information', required: true },
-  { id: 'email', name: 'Email', description: 'Access to user email address', required: false },
-]
+import useOAuthConfig from '@/hooks/use-oauth-config'
+import { AlertCircle, CheckCircle, ExternalLink } from 'lucide-react'
+import { useState } from 'react'
+import AuthenticationProvider from './oauth/authentication-provider'
+import ClientConfig from './oauth/client-config'
+import EnvironmentConfig from './oauth/environment-config'
+import Scopes from './oauth/scopes'
+import AuthenticationSettings from './oauth/authentication-settings'
 
 const environmentDetails = {
   development: { color: 'bg-blue-500', label: 'Development', description: 'For development and testing' },
+  uat: { color: 'bg-yellow-500', label: 'UAT', description: 'User Acceptance Testing environment' },
   staging: { color: 'bg-orange-500', label: 'Staging', description: 'Pre-production environment' },
   production: { color: 'bg-green-500', label: 'Production', description: 'Live production environment' },
 }
-export function OAuthConfiguration() {
-  const [config, setConfig] = useState<OAuthConfig>({
-    authType: 'paotang',
-    environment: 'development',
-    clientId: '',
-    clientSecret: '',
-    redirectUri: '',
-    scope: ['read', 'profile'],
-    authUrl: '',
-    tokenUrl: '',
-    // Authentication Settings
-    requireMFA: false,
-    sessionTimeout: 3600, // 1 hour in seconds
-    tokenExpiry: 86400, // 24 hours in seconds
-    allowRefreshToken: true,
-    requirePKCE: true,
-  })
 
+export function OAuthConfiguration() {
+  const { config, updateConfig, updateScopes } = useOAuthConfig()
   const [isTestingConnection, setIsTestingConnection] = useState(false)
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'success' | 'error'>('idle')
 
-  const handleScopeToggle = (scopeId: string) => {
-    const scope = defaultScopes.find((s) => s.id === scopeId)
-    if (scope?.required) return // Don't allow toggling required scopes
-
-    setConfig((prev) => ({
-      ...prev,
-      scope: prev.scope.includes(scopeId) ? prev.scope.filter((s) => s !== scopeId) : [...prev.scope, scopeId],
-    }))
-  }
-
-  const updateConfig = (field: keyof OAuthConfig, value: string | string[]) => {
-    setConfig((prev) => ({ ...prev, [field]: value }))
-  }
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-  }
   const testConnection = async () => {
     setIsTestingConnection(true)
     try {
@@ -103,7 +49,7 @@ export function OAuthConfiguration() {
 
   // Calculate completion progress
   const getCompletionProgress = () => {
-    const fields = [config.clientId, config.clientSecret, config.redirectUri, config.authUrl, config.tokenUrl]
+    const fields = [config.clientId, config.clientSecret, config.redirectUri]
     const completedFields = fields.filter(Boolean).length
     return Math.round((completedFields / fields.length) * 100)
   }
@@ -142,178 +88,15 @@ export function OAuthConfiguration() {
       <form onSubmit={handleSubmit} className="space-y-8">
         {' '}
         {/* Enhanced Authentication Type Selection */}
-        <Card className="border-2">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Shield className="h-5 w-5 text-primary" />
-                <div>
-                  <CardTitle>Authentication Provider</CardTitle>
-                  <CardDescription>Choose your authentication system</CardDescription>
-                </div>
-              </div>
-              <Badge variant="secondary" className="capitalize">
-                {config.authType}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {(['paotang', 'nextpass'] as const).map((type) => (
-                <div
-                  key={type}
-                  className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                    config.authType === type ? 'border-primary bg-primary/5 shadow-md' : 'border-muted hover:border-border hover:bg-muted/50'
-                  }`}
-                  onClick={() => updateConfig('authType', type)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-medium capitalize">{type} Authentication</h3>
-                      <p className="text-sm text-muted-foreground">{type === 'paotang' ? 'Enterprise OAuth 2.0 provider' : 'Next-generation auth system'}</p>
-                    </div>
-                    <div className={`w-4 h-4 rounded-full border-2 ${config.authType === type ? 'border-primary bg-primary' : 'border-muted'}`}>
-                      {config.authType === type && <div className="w-2 h-2 bg-white rounded-full m-0.5" />}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <AuthenticationProvider authType={config.authType} updateConfig={updateConfig} />
         {/* Enhanced Environment Configuration */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center space-x-2">
-              <Settings className="h-5 w-5 text-primary" />
-              <div>
-                <CardTitle>Environment Configuration</CardTitle>
-                <CardDescription>Select your deployment environment</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {(Object.entries(environmentDetails) as [keyof typeof environmentDetails, (typeof environmentDetails)[keyof typeof environmentDetails]][]).map(([env, details]) => (
-                <div
-                  key={env}
-                  className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                    config.environment === env ? 'border-primary bg-primary/5 shadow-md' : 'border-muted hover:border-border hover:bg-muted/50'
-                  }`}
-                  onClick={() => updateConfig('environment', env)}
-                >
-                  <div className="text-center space-y-3">
-                    <div className={`w-4 h-4 rounded-full mx-auto ${details.color}`} />
-                    <div>
-                      <p className="font-medium">{details.label}</p>
-                      <p className="text-xs text-muted-foreground">{details.description}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <EnvironmentConfig environment={config.environment} type={config.type} updateConfig={updateConfig} />
         {/* Enhanced Client Configuration */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center space-x-2">
-              <Key className="h-5 w-5 text-primary" />
-              <div>
-                <CardTitle>Client Configuration</CardTitle>
-                <CardDescription>Configure your OAuth client credentials and endpoints</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="client-id" className="flex items-center justify-between">
-                  Client ID
-                  {config.clientId && (
-                    <Button type="button" variant="ghost" size="sm" onClick={() => copyToClipboard(config.clientId)}>
-                      <Copy className="h-3 w-3" />
-                    </Button>
-                  )}
-                </Label>
-                <Input id="client-id" placeholder="Enter your OAuth client ID" value={config.clientId} onChange={(e) => updateConfig('clientId', e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="client-secret">Client Secret</Label>
-                <Input id="client-secret" type="password" placeholder="Enter your OAuth client secret" value={config.clientSecret} onChange={(e) => updateConfig('clientSecret', e.target.value)} />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="redirect-uri" className="flex items-center justify-between">
-                Redirect URI
-                {config.redirectUri && (
-                  <Button type="button" variant="ghost" size="sm" onClick={() => copyToClipboard(config.redirectUri)}>
-                    <Copy className="h-3 w-3" />
-                  </Button>
-                )}
-              </Label>
-              <Input id="redirect-uri" placeholder="https://your-app.com/auth/callback" value={config.redirectUri} onChange={(e) => updateConfig('redirectUri', e.target.value)} />
-              <p className="text-xs text-muted-foreground">This URL must be registered in your OAuth provider settings</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="auth-url">Authorization URL</Label>
-                <Input id="auth-url" placeholder={`https://${config.authType}.auth.com/oauth/authorize`} value={config.authUrl} onChange={(e) => updateConfig('authUrl', e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="token-url">Token URL</Label>
-                <Input id="token-url" placeholder={`https://${config.authType}.auth.com/oauth/token`} value={config.tokenUrl} onChange={(e) => updateConfig('tokenUrl', e.target.value)} />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <ClientConfig clientId={config.clientId} redirectUri={config.redirectUri} clientSecret={config.clientSecret} updateConfig={updateConfig} />
+        {/* Enhanced Authentication Settings */}
+        <AuthenticationSettings selectedACR={config.acr} selectedPrompt={config.prompt} updateConfig={updateConfig} />
         {/* Enhanced Permissions & Scopes */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center space-x-2">
-              <Users className="h-5 w-5 text-primary" />
-              <div>
-                <CardTitle>Permissions & Scopes</CardTitle>
-                <CardDescription>Configure what data your application can access</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Permission</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Enabled</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {defaultScopes.map((scope) => (
-                  <TableRow key={scope.id}>
-                    <TableCell className="font-medium">{scope.name}</TableCell>
-                    <TableCell className="text-muted-foreground">{scope.description}</TableCell>
-                    <TableCell>
-                      {scope.required ? (
-                        <Badge variant="secondary" className="text-xs">
-                          Required
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="text-xs">
-                          Optional
-                        </Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Switch checked={config.scope.includes(scope.id)} onCheckedChange={() => handleScopeToggle(scope.id)} disabled={scope.required} />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        <Scopes authType={config.authType} selectedScopes={config.scopes} updateScopes={updateScopes} />
         {/* Enhanced Configuration Summary */}
         <Card className="bg-muted/20">
           <CardHeader>
@@ -359,24 +142,8 @@ export function OAuthConfiguration() {
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-muted-foreground">Active Scopes</Label>
-                <div className="text-sm font-medium">{config.scope.length} selected</div>
+                <div className="text-sm font-medium">{config.scopes.length} selected</div>
               </div>
-            </div>
-            <div className="space-y-3">
-              <Label className="text-sm font-medium text-muted-foreground">Enabled Permissions</Label>
-              <div className="flex flex-wrap gap-2">
-                {config.scope.map((scopeId) => {
-                  const scope = defaultScopes.find((s) => s.id === scopeId)
-                  return scope ? (
-                    <Badge key={scopeId} variant="secondary" className="text-xs">
-                      {scope.name}
-                      {scope.required && <span className="ml-1 text-xs">*</span>}
-                    </Badge>
-                  ) : null
-                })}
-                {config.scope.length === 0 && <span className="text-sm text-muted-foreground">No permissions selected</span>}
-              </div>
-              <p className="text-xs text-muted-foreground">* Required permissions</p>
             </div>
           </CardContent>
         </Card>
