@@ -6,15 +6,14 @@ import { FC } from 'react'
 
 type AuthenticationProviderProps = {
   authType: AuthType
-  // TODO: change to updateConfig
-  updateConfig: (field: keyof OAuthConfig, value: string | string[]) => void
+  updateField: (field: keyof OAuthConfig, value: string | string[]) => void
 }
 
 const KEY_AUTH_TYPE = 'authType' as const
 
 const providers = ['paotang', 'nextpass']
 
-const AuthenticationProvider: FC<AuthenticationProviderProps> = ({ authType, updateConfig }) => {
+const AuthenticationProvider: FC<AuthenticationProviderProps> = ({ authType, updateField }) => {
   return (
     <Card className="border-2">
       <CardHeader>
@@ -37,7 +36,7 @@ const AuthenticationProvider: FC<AuthenticationProviderProps> = ({ authType, upd
             <div
               key={type}
               className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${authType === type ? 'border-primary bg-primary/5 shadow-md' : 'border-muted hover:border-border hover:bg-muted/50'}`}
-              onClick={() => updateConfig(KEY_AUTH_TYPE, type)}
+              onClick={() => updateField(KEY_AUTH_TYPE, type)}
             >
               <div className="flex items-center justify-between">
                 <div>

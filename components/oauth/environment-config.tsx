@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ApplicationType, Environment, OAuthConfig } from '@/types/oauth'
+import { ENVIRONMENT_CONFIG, TYPE_CONFIG } from '@/config/config'
+import { ApplicationType, Environment, EnvironmentDetails, OAuthConfig, TypeDetails } from '@/types/oauth'
 import { Settings } from 'lucide-react'
 import { FC } from 'react'
 import { Label } from '../ui/label'
@@ -7,56 +8,8 @@ import { Label } from '../ui/label'
 interface EnvironmentConfigProps {
   environment: Environment
   type: ApplicationType
-  updateConfig: (field: keyof OAuthConfig, value: string | string[]) => void
+  updateField: (field: keyof OAuthConfig, value: string | string[]) => void
 }
-
-interface EnvironmentDetails {
-  color: string
-  label: string
-  description: string
-}
-
-interface TypeDetails {
-  color: string
-  label: string
-  description: string
-}
-
-const ENVIRONMENT_CONFIG: Record<Environment, EnvironmentDetails> = {
-  development: {
-    color: 'bg-blue-500',
-    label: 'Development',
-    description: 'For development and testing',
-  },
-  uat: {
-    color: 'bg-yellow-500',
-    label: 'UAT',
-    description: 'User Acceptance Testing environment',
-  },
-  staging: {
-    color: 'bg-orange-500',
-    label: 'Staging',
-    description: 'Pre-production environment',
-  },
-  production: {
-    color: 'bg-green-500',
-    label: 'Production',
-    description: 'Live production environment',
-  },
-} as const
-
-const TYPE_CONFIG: Record<string, TypeDetails> = {
-  public: {
-    color: 'bg-purple-500',
-    label: 'Public',
-    description: 'Public client configuration',
-  },
-  sandbox: {
-    color: 'bg-cyan-500',
-    label: 'Sandbox',
-    description: 'Sandbox testing environment',
-  },
-} as const
 
 const EnvironmentOption: FC<{
   env: Environment
@@ -128,13 +81,13 @@ const TypeOption: FC<{
   )
 }
 
-const EnvironmentConfig: FC<EnvironmentConfigProps> = ({ environment, type = 'public', updateConfig }) => {
+const EnvironmentConfig: FC<EnvironmentConfigProps> = ({ environment, type = 'public', updateField }) => {
   const handleEnvironmentSelect = (env: Environment) => {
-    updateConfig('environment', env)
+    updateField('environment', env)
   }
 
   const handleTypeSelect = (selectedType: string) => {
-    updateConfig('type' as keyof OAuthConfig, selectedType)
+    updateField('type' as keyof OAuthConfig, selectedType)
   }
 
   return (

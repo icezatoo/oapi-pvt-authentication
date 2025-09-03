@@ -7,7 +7,7 @@ import { Label } from '../ui/label'
 type AuthenticationSettingsProps = {
   selectedACR: string
   selectedPrompt: string
-  updateConfig: (field: keyof OAuthConfig, value: string) => void
+  updateField: (field: keyof OAuthConfig, value: string) => void
 }
 
 const acrOptions = [
@@ -40,13 +40,13 @@ const promptOptions = [
   },
 ]
 
-const AuthenticationSettings = ({ selectedACR, selectedPrompt, updateConfig }: AuthenticationSettingsProps) => {
+const AuthenticationSettings = ({ selectedACR, selectedPrompt, updateField }: AuthenticationSettingsProps) => {
   const handleACRChange = (acrId: string) => {
-    updateConfig('acr', acrId)
+    updateField('acr', acrId)
   }
 
   const handlePromptChange = (promptId: string) => {
-    updateConfig('prompt', promptId)
+    updateField('prompt', promptId)
   }
 
   return (

@@ -22,3 +22,15 @@ export type Scopes = {
   description: string
   required: boolean
 }
+
+export interface EnvironmentDetails {
+  color: string
+  label: string
+  description: string
+}
+
+export interface TypeDetails {
+  color: string
+  label: string
+  description: string
+}

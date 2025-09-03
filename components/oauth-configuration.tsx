@@ -13,16 +13,10 @@ import ClientConfig from './oauth/client-config'
 import EnvironmentConfig from './oauth/environment-config'
 import Scopes from './oauth/scopes'
 import AuthenticationSettings from './oauth/authentication-settings'
-
-const environmentDetails = {
-  development: { color: 'bg-blue-500', label: 'Development', description: 'For development and testing' },
-  uat: { color: 'bg-yellow-500', label: 'UAT', description: 'User Acceptance Testing environment' },
-  staging: { color: 'bg-orange-500', label: 'Staging', description: 'Pre-production environment' },
-  production: { color: 'bg-green-500', label: 'Production', description: 'Live production environment' },
-}
+import { ENVIRONMENT_CONFIG } from '@/config/config'
 
 export function OAuthConfiguration() {
-  const { config, updateConfig, updateScopes } = useOAuthConfig()
+  const { config, updateField, updateScopes } = useOAuthConfig()
   const [isTestingConnection, setIsTestingConnection] = useState(false)
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'success' | 'error'>('idle')
 
@@ -88,13 +82,13 @@ export function OAuthConfiguration() {
       <form onSubmit={handleSubmit} className="space-y-8">
         {' '}
         {/* Enhanced Authentication Type Selection */}
-        <AuthenticationProvider authType={config.authType} updateConfig={updateConfig} />
+        <AuthenticationProvider authType={config.authType} updateField={updateField} />
         {/* Enhanced Environment Configuration */}
-        <EnvironmentConfig environment={config.environment} type={config.type} updateConfig={updateConfig} />
+        <EnvironmentConfig environment={config.environment} type={config.type} updateField={updateField} />
         {/* Enhanced Client Configuration */}
-        <ClientConfig clientId={config.clientId} redirectUri={config.redirectUri} clientSecret={config.clientSecret} updateConfig={updateConfig} />
+        <ClientConfig clientId={config.clientId} redirectUri={config.redirectUri} clientSecret={config.clientSecret} updateField={updateField} />
         {/* Enhanced Authentication Settings */}
-        <AuthenticationSettings selectedACR={config.acr} selectedPrompt={config.prompt} updateConfig={updateConfig} />
+        <AuthenticationSettings selectedACR={config.acr} selectedPrompt={config.prompt} updateField={updateField} />
         {/* Enhanced Permissions & Scopes */}
         <Scopes authType={config.authType} selectedScopes={config.scopes} updateScopes={updateScopes} />
         {/* Enhanced Configuration Summary */}
@@ -120,7 +114,7 @@ export function OAuthConfiguration() {
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-muted-foreground">Environment</Label>
                 <div className="text-sm font-medium capitalize flex items-center gap-2">
-                  <span className={`w-2 h-2 rounded-full ${environmentDetails[config.environment].color}`} />
+                  <span className={`w-2 h-2 rounded-full ${ENVIRONMENT_CONFIG[config.environment].color}`} />
                   {config.environment}
                 </div>
               </div>

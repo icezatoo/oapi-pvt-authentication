@@ -9,10 +9,10 @@ interface ClientConfigProps {
   clientId: string
   clientSecret: string
   redirectUri: string
-  updateConfig: (field: keyof OAuthConfig, value: string | string[]) => void
+  updateField: (field: keyof OAuthConfig, value: string | string[]) => void
 }
 
-const ClientConfig: FC<ClientConfigProps> = ({ clientId, redirectUri, clientSecret, updateConfig }) => {
+const ClientConfig: FC<ClientConfigProps> = ({ clientId, redirectUri, clientSecret, updateField }) => {
   const [showClientSecret, setShowClientSecret] = useState(false)
 
   const toggleClientSecretVisibility = () => {
@@ -20,11 +20,11 @@ const ClientConfig: FC<ClientConfigProps> = ({ clientId, redirectUri, clientSecr
   }
 
   const handleInputChange = (field: keyof OAuthConfig, value: string) => {
-    updateConfig(field, value)
+    updateField(field, value)
   }
 
   const clearInput = (field: keyof OAuthConfig) => {
-    updateConfig(field, '')
+    updateField(field, '')
   }
 
   return (
