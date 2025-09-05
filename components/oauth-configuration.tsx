@@ -25,7 +25,7 @@ export function OAuthConfiguration() {
 
   const mutation = useMutation({
     mutationFn: () => {
-      return fetchApp2AppAuth()
+      return fetchApp2AppAuth(config)
     },
     onSuccess: () => {
       toast.success('App to app authentication successful!')
@@ -54,22 +54,33 @@ export function OAuthConfiguration() {
     console.log('OAuth Configuration:', config)
   }
 
-  const isFormValid = config.clientId !== '' && config.clientSecret !== '' && config.redirectUri !== ''
+  const isFormValid = config.clientId !== '' && config.clientSecret !== '' && config.redirectUri !== '' && config.endpoint !== ''
 
   // Calculate completion progress
   const getCompletionProgress = () => {
-    const fields = [config.clientId, config.clientSecret, config.redirectUri]
+    const fields = [config.clientId, config.clientSecret, config.redirectUri, config.endpoint]
     const completedFields = fields.filter(Boolean).length
     return Math.round((completedFields / fields.length) * 100)
   }
 
   const handleQrAuth = () => {
-    qrAuth()
+    handleSave()
+    qrAuth(config)
   }
 
   const handleAppToAppAuth = () => {
     mutation.mutate()
   }
+
+  const handleSave = () => {
+    const success = saveToStorage()
+    if (success) {
+      toast.success('Configuration saved as draft successfully!')
+    } else {
+      toast.error('Failed to save configuration. Please try again.')
+    }
+  }
+
   return (
     <div className="container mx-auto p-6 space-y-8 max-w-6xl">
       {/* Enhanced Header with Status */}
@@ -182,14 +193,7 @@ export function OAuthConfiguration() {
             resetConfigHook()
             setConnectionStatus('idle')
           }}
-          onSave={() => {
-            const success = saveToStorage()
-            if (success) {
-              toast.success('Configuration saved as draft successfully!')
-            } else {
-              toast.error('Failed to save configuration. Please try again.')
-            }
-          }}
+          onSave={() => handleSave()}
           onQrCodeAuth={() => handleQrAuth()}
           onAppToAppAuth={() => handleAppToAppAuth()}
         />
