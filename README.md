@@ -34,6 +34,7 @@ A modern and responsive OAuth configuration interface built with Next.js 15, Tai
 - Node.js 18+ 
 - npm or pnpm
 - Git
+- Docker (optional, for containerized development)
 
 ### Installation
 
@@ -58,6 +59,32 @@ pnpm dev
 ```
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### 🐳 Docker Development
+
+1. Build the development image:
+   ```bash
+   docker build -t oauth-pvt-app:dev --target development .
+   ```
+
+2. Run the development container:
+   ```bash
+   docker run -p 3000:3000 -v $(pwd):/app -v /app/node_modules --env-file .env.local --name oauth-dev oauth-pvt-app:dev
+   ```
+
+### 🐳 Production Build with Docker
+
+1. Build the production image:
+   ```bash
+   docker build -t oauth-pvt-app:prod --target production .
+   ```
+
+2. Run the production container:
+   ```bash
+   docker run -p 3000:3000 --env-file .env.production --name oauth-prod oauth-pvt-app:prod
+   ```
+
+   > **Note**: Make sure to create a `.env.production` file with your production environment variables.
 
 ## 🏗️ Project Structure
 
