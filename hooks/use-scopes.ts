@@ -2,7 +2,8 @@ import { AuthType, Scopes } from '@/types/oauth'
 import { useEffect, useState } from 'react'
 
 const nextPass: Scopes[] = [
-  { id: 'anonymous', name: 'Next Anonymous', description: 'Access to user anonymous information', required: false },
+  { id: 'offline', name: 'Offline Access', description: 'Access to user offline access information', required: false },
+  { id: 'openid', name: 'OpenID', description: 'Access to user OpenID information', required: false },
   { id: 'paotangid.citizen', name: 'Citizen', description: 'Access to user citizen information', required: false },
   { id: 'paotangid.title', name: 'Title', description: 'Access to user title information', required: false },
   { id: 'paotangid.fullname_th', name: 'Fullname Th', description: 'Access to user fullname_th information', required: false },
@@ -19,7 +20,7 @@ const nextPass: Scopes[] = [
   { id: 'paotangid.selfie_image', name: 'Selfie Image', description: 'Access to user selfie_image information', required: false },
 ]
 const paotang: Scopes[] = [
-  { id: 'anonymous', name: 'Anonymous', description: 'Access to user anonymous information', required: false },
+  { id: 'openid', name: 'OpenID', description: 'Access to user OpenID information', required: false },
   { id: 'paotangid.citizen', name: 'Citizen', description: 'Access to user citizen information', required: false },
   { id: 'paotangid.title', name: 'Title', description: 'Access to user title information', required: false },
   { id: 'paotangid.fullname_th', name: 'Fullname Th', description: 'Access to user fullname_th information', required: false },

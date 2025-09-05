@@ -36,21 +36,51 @@ export const TYPE_CONFIG: Record<string, TypeDetails> = {
   },
 } as const
 
-export const ENDPOINT_CONFIG: Record<string, Record<string, Record<string, string>>> = {
+export const ENDPOINT_CONFIG: Record<string, Record<string, Record<string, Record<string, string>>>> = {
   paotang: {
     paotangid: {
-      sandbox: 'https://sandbox.paotang-id.devops.krungthai.com',
-      public: 'https://paotang-id.devops.krungthai.com',
+      development: {
+        sandbox: 'https://paotang-id-sandbox-external-sit.th-service.co.in/',
+        public: 'https://paotang-id-sandbox-external-sit.th-service.co.in/',
+      },
+      uat: {
+        sandbox: 'https://paotang-id-sandbox-external-uat.th-service.co.in/',
+        public: 'https://paotang-id-sandbox-external-uat.th-service.co.in/',
+      },
+      production: {
+        sandbox: 'https://paotang-id-sandbox.devops.krungthai.com/',
+        public: 'https://paotang-id.devops.krungthai.com/',
+      },
     },
     paotangpass: {
-      sandbox: 'https://sandbox.paotang-pass.devops.krungthai.com',
-      public: 'https://paotang-pass.devops.krungthai.com',
+      development: {
+        sandbox: 'https://paotang-pass-sandbox-external-sit.th-service.co.in/',
+        public: 'https://paotang-pass-sandbox-external-sit.th-service.co.in/',
+      },
+      uat: {
+        sandbox: 'https://paotang-pass-sandbox-external-uat.th-service.co.in/',
+        public: 'https://paotang-pass-sandbox-external-uat.th-service.co.in/',
+      },
+      production: {
+        sandbox: 'https://paotang-pass-sandbox.devops.krungthai.com/',
+        public: 'https://paotang-pass.devops.krungthai.com/',
+      },
     },
   },
   nextpass: {
     default: {
-      sandbox: '',
-      public: 'https://nextpass.devops.krungthai.com',
+      development: {
+        sandbox: '',
+        public: 'https://nextpass.devops.krungthai.com',
+      },
+      uat: {
+        sandbox: '',
+        public: 'https://nextpass.devops.krungthai.com',
+      },
+      production: {
+        sandbox: '',
+        public: 'https://nextpass.devops.krungthai.com',
+      },
     },
   },
 }

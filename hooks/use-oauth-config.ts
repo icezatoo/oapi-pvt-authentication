@@ -14,6 +14,7 @@ const createDefaultConfig = (): OAuthConfig => ({
   prompt: '',
   endpoint: '',
   url: '',
+  state: '',
 })
 
 // Action types

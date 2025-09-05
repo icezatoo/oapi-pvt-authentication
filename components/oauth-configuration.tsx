@@ -1,25 +1,39 @@
 'use client'
 
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Progress } from '@/components/ui/progress'
+import { ENVIRONMENT_CONFIG } from '@/config/config'
+import useAuth from '@/hooks/use-auth'
 import useOAuthConfig from '@/hooks/use-oauth-config'
+import { useMutation } from '@tanstack/react-query'
 import { AlertCircle, CheckCircle } from 'lucide-react'
 import { useState } from 'react'
+import { toast } from 'sonner'
+import { ActionButtons } from './oauth/action-buttons'
 import AuthenticationProvider from './oauth/authentication-provider'
+import AuthenticationSettings from './oauth/authentication-settings'
 import ClientConfig from './oauth/client-config'
 import EnvironmentConfig from './oauth/environment-config'
 import Scopes from './oauth/scopes'
-import AuthenticationSettings from './oauth/authentication-settings'
-import { ActionButtons } from './oauth/action-buttons'
-import { ENVIRONMENT_CONFIG } from '@/config/config'
-
 export function OAuthConfiguration() {
   const { config, updateField, updateScopes, resetConfig: resetConfigHook, saveToStorage, clearStorage, changeAuthType } = useOAuthConfig()
   const [isTestingConnection, setIsTestingConnection] = useState(false)
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const { qrAuth, fetchApp2AppAuth } = useAuth()
+
+  const mutation = useMutation({
+    mutationFn: () => {
+      return fetchApp2AppAuth()
+    },
+    onSuccess: () => {
+      toast.success('App to app authentication successful!')
+    },
+    onError: () => {
+      toast.error('App to app authentication failed!')
+    },
+  })
 
   const testConnection = async () => {
     setIsTestingConnection(true)
@@ -49,21 +63,13 @@ export function OAuthConfiguration() {
     return Math.round((completedFields / fields.length) * 100)
   }
 
-  // URL building functions
-  // const buildAuthBaseUrl = () => {
-  //   const sandboxPrefix = config.type === "sandbox" ? "sandbox-" : "";
-  //   const endpointPrefix = config.endpoint === "paotang-id" ? "paotang-id" : "paotang-pass";
+  const handleQrAuth = () => {
+    qrAuth()
+  }
 
-  //   if (config.environment === "PRD") {
-  //     const baseUrl = config.type === "sandbox" ?
-  //       `https://${endpointPrefix}-sandbox.devops.krungthai.com/` :
-  //       `https://${endpointPrefix}.devops.krungthai.com/`;
-  //     return baseUrl;
-  //   } else {
-  //     return `https://${endpointPrefix}-${sandboxPrefix}external-${environment.toLowerCase()}.th-service.co.in/`;
-  //   }
-  // };
-
+  const handleAppToAppAuth = () => {
+    mutation.mutate()
+  }
   return (
     <div className="container mx-auto p-6 space-y-8 max-w-6xl">
       {/* Enhanced Header with Status */}
@@ -179,13 +185,13 @@ export function OAuthConfiguration() {
           onSave={() => {
             const success = saveToStorage()
             if (success) {
-              alert('Configuration saved as draft successfully!')
+              toast.success('Configuration saved as draft successfully!')
             } else {
-              alert('Failed to save configuration. Please try again.')
+              toast.error('Failed to save configuration. Please try again.')
             }
           }}
-          onQrCodeAuth={() => alert('QR Code Authentication will be implemented here')}
-          onAppToAppAuth={() => alert('App-to-App Authentication will be implemented here')}
+          onQrCodeAuth={() => handleQrAuth()}
+          onAppToAppAuth={() => handleAppToAppAuth()}
         />
       </form>
     </div>

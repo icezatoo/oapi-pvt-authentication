@@ -16,6 +16,7 @@ export interface OAuthConfig {
   acr: ACRType
   prompt: string
   url: string
+  state: string
 }
 
 export type Scopes = {
