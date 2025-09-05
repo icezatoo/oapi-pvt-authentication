@@ -1,109 +1,165 @@
 # OAuth PVT App
 
-A modern and responsive OAuth configuration interface built with Next.js 15, TailwindCSS v4, and Shadcn UI.
+A modern and responsive OAuth configuration interface built with Next.js 15, TailwindCSS v4, and Shadcn UI. This application provides a user-friendly interface for managing OAuth configurations with support for multiple authentication providers and environments.
 
-## Features
+## ✨ Features
 
 - 🎨 **Modern UI Design** - Clean, professional interface following modern design patterns
-- 🔄 **Dual Authentication Support** - Switch between Paotang and Nextpass authentication systems
-- 🌍 **Multi-Environment** - Support for Development, Staging, and Production environments  
-- 📊 **Progress Tracking** - Visual progress indicator showing configuration completion
-- 🎯 **Scope Management** - Interactive permissions and scopes configuration
+- 🔄 **Multiple Authentication Providers** - Support for Paotang and other authentication systems
+- 🌍 **Multi-Environment** - Configure for Development, Staging, and Production environments
+- 🔄 **State Management** - Built with React Query for efficient data fetching and state synchronization
+- 📊 **Progress Tracking** - Visual indicators showing configuration completion status
+- 🎯 **Scope Management** - Interactive permissions and OAuth scopes configuration
+- 🔒 **Secure Storage** - Configuration persistence with secure client-side storage
 - 🌙 **Dark Mode** - Built-in light/dark theme switching
 - 📱 **Responsive Design** - Works seamlessly across all device sizes
 - ⚡ **Modern Stack** - Next.js 15 with Turbopack, TypeScript, and latest dependencies
 
-## Technologies Used
+## 🛠️ Technologies Used
 
 - **Next.js 15** - React framework with Turbopack for fast development
+- **React Query** - Data synchronization and state management
+- **TypeScript** - Type-safe development
 - **TailwindCSS v4** - Utility-first CSS framework
 - **Shadcn UI** - High-quality accessible components
-- **TypeScript** - Type-safe development
-- **Lucide React** - Beautiful icons
-- **Radix UI** - Headless accessible components
+- **Lucide React** - Beautiful and consistent icons
+- **Radix UI** - Unstyled, accessible components
+- **Zod** - TypeScript-first schema validation
+- **React Hook Form** - Form state management and validation
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 
 - Node.js 18+ 
 - npm or pnpm
+- Git
 
 ### Installation
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
-cd oauth-pvt-app
+git clone https://gitdev.devops.krungthai.com/open-api/poc/oapi-pvt-authentication.git
+cd oapi-pvt-authentication
 ```
 
 2. Install dependencies:
 ```bash
 npm install
+# or
+pnpm install
 ```
 
 3. Start the development server:
 ```bash
 npm run dev
+# or
+pnpm dev
 ```
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Project Structure
+## 🏗️ Project Structure
 
 ```
-oauth-pvt-app/
-├── app/                    # Next.js app directory
-│   ├── globals.css        # Global styles and Tailwind imports
-│   ├── layout.tsx         # Root layout with header/footer
-│   └── page.tsx           # Main page
-├── components/            # React components
-│   ├── ui/               # Shadcn UI components
-│   │   ├── button.tsx
-│   │   ├── card.tsx
-│   │   ├── input.tsx
-│   │   ├── label.tsx
-│   │   ├── switch.tsx
-│   │   ├── table.tsx
-│   │   ├── badge.tsx
-│   │   └── progress.tsx
-│   ├── header.tsx        # Application header with theme toggle
-│   ├── footer.tsx        # Application footer
-│   └── oauth-configuration.tsx  # Main OAuth config component
-├── lib/
-│   └── utils.ts          # Utility functions
-└── components.json       # Shadcn UI configuration
+├── app/                  # Next.js 13+ app directory
+├── components/           # Reusable UI components
+│   └── oauth/            # OAuth specific components
+├── config/               # Application configuration
+├── context/              # React context providers
+├── hooks/                # Custom React hooks
+├── lib/                  # Utility functions
+├── public/               # Static assets
+├── types/                # TypeScript type definitions
+└── README.md             # This file
 ```
-## OAuth Configuration Features
 
-### Authentication Types
-- **Paotang** - Enterprise OAuth 2.0 provider
-- **Nextpass** - Next-generation authentication system
+## 🔄 Development Workflow
 
-### Environment Support
-- **Development** - For development and testing
-- **Staging** - Pre-production environment  
-- **Production** - Live production environment
+1. **Branching**
+   - `main` - Production-ready code
+   - `develop` - Integration branch for features
+   - `feature/*` - New features and improvements
 
-### Permission Scopes
-- **Read** - Read access to user data (Required)
-- **Write** - Write access to user data
-- **Profile** - Access to user profile information (Required)
-- **Email** - Access to user email address
+2. **Committing Changes**
+   - Use conventional commit messages
+   - Reference issue numbers when applicable
 
-### UI Components
+3. **Pull Requests**
+   - Create PRs from feature branches to `develop`
+   - Include clear descriptions and screenshots when applicable
+   - Request reviews from team members
 
-The application uses a comprehensive set of Shadcn UI components:
+## 📦 Available Scripts
 
-- **Cards** - Container components for sections
-- **Forms** - Input fields, labels, and validation
-- **Tables** - For displaying permission scopes
-- **Switches** - Toggle controls for auth types and permissions
-- **Badges** - Status indicators and tags
-- **Buttons** - Action buttons with variants
-- **Progress** - Visual completion indicator
+- `dev` - Start development server
+- `build` - Build for production
+- `start` - Start production server
+- `lint` - Run ESLint
+- `type-check` - Check TypeScript types
+- `format` - Format code with Prettier
 
-## Configuration Options
+## 🔒 Environment Variables
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```env
+# API Configuration
+NEXT_PUBLIC_API_BASE_URL=your_api_base_url
+
+# OAuth Configuration
+NEXT_PUBLIC_OAUTH_CLIENT_ID=your_client_id
+NEXT_PUBLIC_OAUTH_REDIRECT_URI=your_redirect_uri
+
+# Feature Flags
+NEXT_PUBLIC_ENABLE_EXPERIMENTAL_FEATURES=false
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [TanStack Query Documentation](https://tanstack.com/query/latest)
+- [TailwindCSS Documentation](https://tailwindcss.com/docs)
+- [Shadcn UI Documentation](https://ui.shadcn.com/)
+- [Radix UI](https://www.radix-ui.com/)
+
+## 📚 Additional Documentation
+
+For detailed API documentation and integration guides, please refer to:
+- [API Reference](https://docs.example.com/api)
+- [OAuth Integration Guide](https://docs.example.com/oauth)
+- [Troubleshooting](https://docs.example.com/troubleshooting)
+
+## 🔍 Permission Scopes
+
+The application supports the following OAuth 2.0 scopes:
+
+- `read` - Read access to user data (Required)
+- `write` - Write access to user data
+- `profile` - Access to user profile information (Required)
+- `email` - Access to user email address
+
+## 🆘 Support
+
+For support, please contact the development team or open an issue in the repository.
+
+## ⚙️ Configuration Options
+
+The application can be configured using environment variables. See the [Environment Variables](#-environment-variables) section for details.
 
 The OAuth configuration supports the following settings:
 
