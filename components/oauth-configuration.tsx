@@ -100,7 +100,7 @@ export function OAuthConfiguration() {
         {/* Enhanced Authentication Type Selection */}
         <AuthenticationProvider authType={config.authType} changeAuthType={changeAuthType} />
         {/* Enhanced Environment Configuration */}
-        <EnvironmentConfig environment={config.environment} type={config.type} updateField={updateField} />
+        <EnvironmentConfig environment={config.environment} authType={config.authType} endpoint={config.endpoint} type={config.type} updateField={updateField} />
         {/* Enhanced Client Configuration */}
         <ClientConfig clientId={config.clientId} redirectUri={config.redirectUri} clientSecret={config.clientSecret} updateField={updateField} />
         {/* Enhanced Authentication Settings */}

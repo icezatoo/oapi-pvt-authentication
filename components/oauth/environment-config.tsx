@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ENVIRONMENT_CONFIG, TYPE_CONFIG } from '@/config/config'
-import { ApplicationType, Environment, EnvironmentDetails, OAuthConfig, TypeDetails } from '@/types/oauth'
+import { ENDPOINT_CONFIG, ENVIRONMENT_CONFIG, TYPE_CONFIG } from '@/config/config'
+import { ApplicationType, AuthType, EndpointDetails, Environment, EnvironmentDetails, OAuthConfig, TypeDetails } from '@/types/oauth'
 import { Settings } from 'lucide-react'
 import { FC } from 'react'
 import { Label } from '../ui/label'
@@ -8,6 +8,8 @@ import { Label } from '../ui/label'
 interface EnvironmentConfigProps {
   environment: Environment
   type: ApplicationType
+  authType: AuthType
+  endpoint: string
   updateField: (field: keyof OAuthConfig, value: string | string[]) => void
 }
 
@@ -81,13 +83,87 @@ const TypeOption: FC<{
   )
 }
 
-const EnvironmentConfig: FC<EnvironmentConfigProps> = ({ environment, type = 'public', updateField }) => {
+const EndpointOptions: FC<{
+  type: string
+  details: EndpointDetails
+  isSelected: boolean
+  onSelect: (endpoint: string) => void
+}> = ({ type, details, isSelected, onSelect }) => {
+  const baseClasses = 'p-4 border-2 rounded-lg cursor-pointer transition-all text-center space-y-3'
+  const selectedClasses = 'border-primary bg-primary/5 shadow-md'
+  const unselectedClasses = 'border-muted hover:border-border hover:bg-muted/50'
+
+  const classes = `${baseClasses} ${isSelected ? selectedClasses : unselectedClasses}`
+
+  return (
+    <div
+      className={classes}
+      onClick={() => onSelect(type)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onSelect(type)
+        }
+      }}
+      aria-pressed={isSelected}
+    >
+      <div className={`w-4 h-4 rounded-full mx-auto ${details.color}`} />
+      <div>
+        <p className="font-medium">{details.label}</p>
+        <p className="text-xs text-muted-foreground">{details.description}</p>
+      </div>
+    </div>
+  )
+}
+
+const EndpointOption: FC<{
+  endpoint: string
+  isSelected: boolean
+  onSelect: (endpoint: string) => void
+  url: string
+}> = ({ endpoint, isSelected, onSelect, url }) => {
+  const baseClasses = 'p-4 border-2 rounded-lg cursor-pointer transition-all text-center space-y-3'
+  const selectedClasses = 'border-primary bg-primary/5 shadow-md'
+  const unselectedClasses = 'border-muted hover:border-border hover:bg-muted/50'
+
+  const classes = `${baseClasses} ${isSelected ? selectedClasses : unselectedClasses}`
+
+  return (
+    <div
+      className={classes}
+      onClick={() => onSelect(endpoint)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onSelect(endpoint)
+        }
+      }}
+      aria-pressed={isSelected}
+    >
+      <div className="space-y-2">
+        <p className="font-medium">{endpoint}</p>
+        <p className="text-xs text-muted-foreground break-all">{url}</p>
+      </div>
+    </div>
+  )
+}
+
+const EnvironmentConfig: FC<EnvironmentConfigProps> = ({ environment, endpoint, authType, type = 'public', updateField }) => {
   const handleEnvironmentSelect = (env: Environment) => {
     updateField('environment', env)
   }
 
   const handleTypeSelect = (selectedType: string) => {
     updateField('type' as keyof OAuthConfig, selectedType)
+  }
+
+  const handleEndpointSelect = (endpoint: string) => {
+    updateField('endpoint' as keyof OAuthConfig, endpoint)
+    updateField('url' as keyof OAuthConfig, ENDPOINT_CONFIG[authType][endpoint][type])
   }
 
   return (
@@ -123,6 +199,19 @@ const EnvironmentConfig: FC<EnvironmentConfigProps> = ({ environment, type = 'pu
             {Object.entries(TYPE_CONFIG).map(([typeKey, details]) => (
               <TypeOption key={typeKey} type={typeKey} details={details} isSelected={type === typeKey} onSelect={handleTypeSelect} />
             ))}
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <Label htmlFor="endpoint" className="flex items-center justify-between">
+            {authType === 'nextpass' ? 'NextPass Endpoint' : 'Paotang Endpoint'}
+          </Label>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {authType &&
+              Object.entries(ENDPOINT_CONFIG[authType] || {}).map(([endpointKey, urls]) => {
+                const url = urls[type] || urls.sandbox
+                return url && <EndpointOption key={endpointKey} endpoint={endpointKey} isSelected={endpointKey === endpoint} onSelect={handleEndpointSelect} url={url} />
+              })}
           </div>
         </div>
       </CardContent>

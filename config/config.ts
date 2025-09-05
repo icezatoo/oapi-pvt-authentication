@@ -35,3 +35,22 @@ export const TYPE_CONFIG: Record<string, TypeDetails> = {
     description: 'Sandbox testing environment',
   },
 } as const
+
+export const ENDPOINT_CONFIG: Record<string, Record<string, Record<string, string>>> = {
+  paotang: {
+    paotangid: {
+      sandbox: 'https://sandbox.paotang-id.devops.krungthai.com',
+      public: 'https://paotang-id.devops.krungthai.com',
+    },
+    paotangpass: {
+      sandbox: 'https://sandbox.paotang-pass.devops.krungthai.com',
+      public: 'https://paotang-pass.devops.krungthai.com',
+    },
+  },
+  nextpass: {
+    default: {
+      sandbox: '',
+      public: 'https://nextpass.devops.krungthai.com',
+    },
+  },
+}

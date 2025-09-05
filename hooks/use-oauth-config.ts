@@ -12,6 +12,8 @@ const createDefaultConfig = (): OAuthConfig => ({
   scopes: [],
   acr: 'PIN',
   prompt: '',
+  endpoint: '',
+  url: '',
 })
 
 // Action types
@@ -49,11 +51,11 @@ const oauthConfigReducer = (state: OAuthConfig, action: OAuthConfigAction): OAut
 
     case 'RESET_CONFIG':
       return createDefaultConfig()
-      
+
     case 'CHANGE_AUTH_TYPE':
       return {
         ...createDefaultConfig(),
-        authType: action.payload
+        authType: action.payload,
       }
 
     default:

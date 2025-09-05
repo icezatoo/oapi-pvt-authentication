@@ -8,12 +8,14 @@ export interface OAuthConfig {
   authType: AuthType
   environment: Environment
   type: ApplicationType
+  endpoint: string
   clientId: string
   clientSecret: string
   redirectUri: string
   scopes: string[]
   acr: ACRType
   prompt: string
+  url: string
 }
 
 export type Scopes = {
@@ -30,6 +32,12 @@ export interface EnvironmentDetails {
 }
 
 export interface TypeDetails {
+  color: string
+  label: string
+  description: string
+}
+
+export interface EndpointDetails {
   color: string
   label: string
   description: string

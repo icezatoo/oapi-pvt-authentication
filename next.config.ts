@@ -1,7 +1,7 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  ssr: false,
+  // ssr: false,
   /* config options here */
 }
 
