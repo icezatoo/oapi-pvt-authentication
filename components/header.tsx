@@ -1,14 +1,14 @@
-"use client"
+'use client'
 
-import { Button } from "@/components/ui/button"
-import { Github, Moon, Sun } from "lucide-react"
-import { useState, useEffect } from "react"
+import { Button } from '@/components/ui/button'
+import { Moon, Sun } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 export function Header() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light')
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' || 'light'
+    const savedTheme = (localStorage.getItem('theme') as 'light' | 'dark') || 'light'
     setTheme(savedTheme)
     document.documentElement.classList.toggle('dark', savedTheme === 'dark')
   }, [])
@@ -38,9 +38,6 @@ export function Header() {
           <div className="flex items-center space-x-2">
             <Button variant="ghost" size="icon" onClick={toggleTheme}>
               {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-            </Button>
-            <Button variant="ghost" size="icon">
-              <Github className="h-4 w-4" />
             </Button>
           </div>
         </div>

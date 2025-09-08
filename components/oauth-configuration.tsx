@@ -7,7 +7,7 @@ import { Progress } from '@/components/ui/progress'
 import { ENVIRONMENT_CONFIG } from '@/config/config'
 import { useEffect, useState } from 'react'
 
-import useNextPassAuth from '@/hooks/use-next-auth'
+import useNextPassAuth from '@/hooks/use-next-pass-auth'
 import { useOAuthConfigStore } from '@/hooks/use-oauth-config'
 import usePaotangAuth from '@/hooks/use-paotang-auth'
 import { useMutation } from '@tanstack/react-query'
