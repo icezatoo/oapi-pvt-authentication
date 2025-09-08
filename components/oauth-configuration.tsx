@@ -1,13 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Progress } from '@/components/ui/progress'
 import { ENVIRONMENT_CONFIG } from '@/config/config'
-import useAuth from '@/hooks/use-auth'
+import { useEffect, useState } from 'react'
+
+import useNextPassAuth from '@/hooks/use-next-auth'
 import { useOAuthConfigStore } from '@/hooks/use-oauth-config'
+import usePaotangAuth from '@/hooks/use-paotang-auth'
 import { useMutation } from '@tanstack/react-query'
 import { AlertCircle, CheckCircle } from 'lucide-react'
 import { toast } from 'sonner'
@@ -19,7 +21,8 @@ import EnvironmentConfig from './oauth/environment-config'
 import Scopes from './oauth/scopes'
 export function OAuthConfiguration() {
   const { config, updateField, updateScopes, resetConfig: resetConfigHook, changeAuthType, clearLocalStorage, isLoading, setLoading } = useOAuthConfigStore()
-  const { qrAuth, fetchApp2AppAuth } = useAuth()
+  const { qrAuth, fetchPaotangAuth } = usePaotangAuth()
+  const { fetchNextPassAuth } = useNextPassAuth()
   const [deepLink, setDeepLink] = useState<string | null>(null)
 
   // Set loading to false after initial render when config is loaded
@@ -27,9 +30,31 @@ export function OAuthConfiguration() {
     setLoading(false)
   }, [setLoading])
 
-  const mutation = useMutation({
+  const mutationPaotangAuth = useMutation({
     mutationFn: async () => {
-      const result = await fetchApp2AppAuth(config)
+      const result = await fetchPaotangAuth(config)
+      if (result?.deeplinkUrl) {
+        setDeepLink(result.deeplinkUrl)
+      }
+      return result
+    },
+    onSuccess: (data) => {
+      if (data?.deeplinkUrl) {
+        setDeepLink(data.deeplinkUrl)
+        toast.success('Deep link generated successfully!')
+      } else {
+        toast.success('App to app authentication successful!')
+      }
+    },
+    onError: (error) => {
+      console.error('Authentication error:', error)
+      toast.error('App to app authentication failed!')
+    },
+  })
+
+  const mutationNextPassAuth = useMutation({
+    mutationFn: async () => {
+      const result = await fetchNextPassAuth(config)
       if (result?.deeplinkUrl) {
         setDeepLink(result.deeplinkUrl)
       }
@@ -67,15 +92,15 @@ export function OAuthConfiguration() {
     qrAuth(config)
   }
 
-  const handleAppToAppAuth = async () => {
-    try {
-      const result = await mutation.mutateAsync()
-      if (result?.deeplinkUrl) {
-        setDeepLink(result.deeplinkUrl)
-      }
-    } catch (error) {
-      console.error('Error generating deep link:', error)
-    }
+  const handleAppToAppAuth = () => {
+    const mutation = config.authType === 'paotang' ? mutationPaotangAuth : mutationNextPassAuth
+    mutation.mutate(undefined, {
+      onSuccess: (result) => {
+        if (result?.deeplinkUrl) {
+          setDeepLink(result.deeplinkUrl)
+        }
+      },
+    })
   }
 
   if (isLoading) {
@@ -185,9 +210,14 @@ export function OAuthConfiguration() {
         <ActionButtons
           isNextPass={config.authType === 'nextpass'}
           isFormValid={isFormValid}
+          isLoading={mutationPaotangAuth.isPending || mutationNextPassAuth.isPending}
+          error={mutationPaotangAuth.error?.message || mutationNextPassAuth.error?.message}
           onReset={() => {
             clearLocalStorage()
             resetConfigHook()
+            setDeepLink(null)
+            mutationPaotangAuth.reset()
+            mutationNextPassAuth.reset()
           }}
           onQrCodeAuth={handleQrAuth}
           onAppToAppAuth={handleAppToAppAuth}

@@ -2,8 +2,8 @@ import { AuthType, Scopes } from '@/types/oauth'
 import { useEffect, useState } from 'react'
 
 const nextPass: Scopes[] = [
-  { id: 'offline', name: 'Offline Access', description: 'Access to user offline access information', required: true },
-  { id: 'openid', name: 'OpenID', description: 'Access to user OpenID information', required: true },
+  { id: 'nextpass.offline', name: 'Offline Access', description: 'Access to user offline access information', required: true },
+  { id: 'nextpass.openid', name: 'OpenID', description: 'Access to user OpenID information', required: true },
   { id: 'nextpass.citizen', name: 'Citizen', description: 'Access to user citizen information', required: false },
   { id: 'nextpass.title', name: 'Title', description: 'Access to user title information', required: false },
   { id: 'nextpass.fullname_th', name: 'Fullname Th', description: 'Access to user fullname_th information', required: false },

@@ -40,30 +40,30 @@ export const ENDPOINT_CONFIG: Record<string, Record<string, Record<string, Recor
   paotang: {
     paotangid: {
       development: {
-        sandbox: 'https://paotang-id-sandbox-external-sit.th-service.co.in/',
-        public: 'https://paotang-id-sandbox-external-sit.th-service.co.in/',
+        sandbox: 'https://paotang-id-sandbox-external-sit.th-service.co.in',
+        public: 'https://paotang-id-sandbox-external-sit.th-service.co.in',
       },
       uat: {
-        sandbox: 'https://paotang-id-sandbox-external-uat.th-service.co.in/',
-        public: 'https://paotang-id-sandbox-external-uat.th-service.co.in/',
+        sandbox: 'https://paotang-id-sandbox-external-uat.th-service.co.in',
+        public: 'https://paotang-id-sandbox-external-uat.th-service.co.in',
       },
       production: {
-        sandbox: 'https://paotang-id-sandbox.devops.krungthai.com/',
-        public: 'https://paotang-id.devops.krungthai.com/',
+        sandbox: 'https://paotang-id-sandbox.devops.krungthai.com',
+        public: 'https://paotang-id.devops.krungthai.com',
       },
     },
     paotangpass: {
       development: {
-        sandbox: 'https://paotang-pass-sandbox-external-sit.th-service.co.in/',
-        public: 'https://paotang-pass-sandbox-external-sit.th-service.co.in/',
+        sandbox: 'https://paotang-pass-sandbox-external-sit.th-service.co.in',
+        public: 'https://paotang-pass-sandbox-external-sit.th-service.co.in',
       },
       uat: {
-        sandbox: 'https://paotang-pass-sandbox-external-uat.th-service.co.in/',
-        public: 'https://paotang-pass-sandbox-external-uat.th-service.co.in/',
+        sandbox: 'https://paotang-pass-sandbox-external-uat.th-service.co.in',
+        public: 'https://paotang-pass-sandbox-external-uat.th-service.co.in',
       },
       production: {
-        sandbox: 'https://paotang-pass-sandbox.devops.krungthai.com/',
-        public: 'https://paotang-pass.devops.krungthai.com/',
+        sandbox: 'https://paotang-pass-sandbox.devops.krungthai.com',
+        public: 'https://paotang-pass.devops.krungthai.com',
       },
     },
   },
@@ -71,15 +71,15 @@ export const ENDPOINT_CONFIG: Record<string, Record<string, Record<string, Recor
     default: {
       development: {
         sandbox: '',
-        public: 'https://nextpass.devops.krungthai.com',
+        public: 'https://oapi-3-legged-external-gw-sit.arisetech.dev',
       },
       uat: {
         sandbox: '',
-        public: 'https://nextpass.devops.krungthai.com',
+        public: 'https://oapi-3-legged-external-gw-uat.arisetech.dev',
       },
       production: {
         sandbox: '',
-        public: 'https://nextpass.devops.krungthai.com',
+        public: 'https://oapi-3-legged-external-gw.arisetech.dev',
       },
     },
   },

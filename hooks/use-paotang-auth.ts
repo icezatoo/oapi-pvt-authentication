@@ -1,7 +1,7 @@
 import { AuthResponse } from '@/types/auth'
 import { OAuthConfig } from '@/types/oauth'
 
-const useAuth = () => {
+const usePaotangAuth = () => {
   const getRequestBody = (config: OAuthConfig) => {
     if (!config.clientId || !config.redirectUri) {
       throw new Error('Missing required configuration: clientId and redirectUri are required')
@@ -18,15 +18,12 @@ const useAuth = () => {
     }
   }
 
-  const fetchApp2AppAuth = (config: OAuthConfig): Promise<AuthResponse> => {
+  const fetchPaotangAuth = (config: OAuthConfig): Promise<AuthResponse> => {
     if (!config.url) {
       return Promise.reject(new Error('Base URL is not configured'))
     }
-
-    const baseUrl = config.url.endsWith('/') ? config.url : `${config.url}/`
     const requestBody = getRequestBody(config)
-
-    return fetch(`${baseUrl}oauth2/app2app/auth`, {
+    return fetch(`${config.url}/oauth2/app2app/auth`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -67,9 +64,9 @@ const useAuth = () => {
   }
 
   return {
-    fetchApp2AppAuth,
+    fetchPaotangAuth,
     qrAuth,
   }
 }
 
-export default useAuth
+export default usePaotangAuth
