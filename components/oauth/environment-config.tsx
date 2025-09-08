@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ENDPOINT_CONFIG, ENVIRONMENT_CONFIG, TYPE_CONFIG } from '@/config/config'
-import { ApplicationType, AuthType, EndpointDetails, Environment, EnvironmentDetails, OAuthConfig, TypeDetails } from '@/types/oauth'
+import { ApplicationType, AuthType, Environment, EnvironmentDetails, OAuthConfig, TypeDetails } from '@/types/oauth'
 import { Settings } from 'lucide-react'
 import { FC } from 'react'
 import { Label } from '../ui/label'

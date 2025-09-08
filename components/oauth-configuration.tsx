@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
@@ -20,6 +20,7 @@ import Scopes from './oauth/scopes'
 export function OAuthConfiguration() {
   const { config, updateField, updateScopes, resetConfig: resetConfigHook, changeAuthType, clearLocalStorage, isLoading, setLoading } = useOAuthConfigStore()
   const { qrAuth, fetchApp2AppAuth } = useAuth()
+  const [deepLink, setDeepLink] = useState<string | null>(null)
 
   // Set loading to false after initial render when config is loaded
   useEffect(() => {
@@ -27,13 +28,23 @@ export function OAuthConfiguration() {
   }, [setLoading])
 
   const mutation = useMutation({
-    mutationFn: () => {
-      return fetchApp2AppAuth(config)
+    mutationFn: async () => {
+      const result = await fetchApp2AppAuth(config)
+      if (result?.deeplinkUrl) {
+        setDeepLink(result.deeplinkUrl)
+      }
+      return result
     },
-    onSuccess: () => {
-      toast.success('App to app authentication successful!')
+    onSuccess: (data) => {
+      if (data?.deeplinkUrl) {
+        setDeepLink(data.deeplinkUrl)
+        toast.success('Deep link generated successfully!')
+      } else {
+        toast.success('App to app authentication successful!')
+      }
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Authentication error:', error)
       toast.error('App to app authentication failed!')
     },
   })
@@ -56,8 +67,15 @@ export function OAuthConfiguration() {
     qrAuth(config)
   }
 
-  const handleAppToAppAuth = () => {
-    mutation.mutate()
+  const handleAppToAppAuth = async () => {
+    try {
+      const result = await mutation.mutateAsync()
+      if (result?.deeplinkUrl) {
+        setDeepLink(result.deeplinkUrl)
+      }
+    } catch (error) {
+      console.error('Error generating deep link:', error)
+    }
   }
 
   if (isLoading) {
@@ -159,19 +177,21 @@ export function OAuthConfiguration() {
               <AlertCircle className="h-5 w-5 text-orange-500 mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-orange-800 dark:text-orange-200">Configuration Incomplete</p>
-                <p className="text-xs text-orange-700 dark:text-orange-300 mt-1">Please fill in all required fields: Client ID, Client Secret, and Redirect URI.</p>
+                <p className="text-xs text-orange-700 dark:text-orange-300 mt-1">Please fill in all required fields: Client ID, Client Secret, Endpoint, and Redirect URI.</p>
               </div>
             </div>
           </div>
         )}
         <ActionButtons
+          isNextPass={config.authType === 'nextpass'}
           isFormValid={isFormValid}
           onReset={() => {
             clearLocalStorage()
             resetConfigHook()
           }}
-          onQrCodeAuth={() => handleQrAuth()}
-          onAppToAppAuth={() => handleAppToAppAuth()}
+          onQrCodeAuth={handleQrAuth}
+          onAppToAppAuth={handleAppToAppAuth}
+          deepLink={deepLink || ''}
         />
       </form>
     </div>

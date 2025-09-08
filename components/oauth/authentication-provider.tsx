@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { AuthType, OAuthConfig } from '@/types/oauth'
+import { AuthType } from '@/types/oauth'
 import { Shield } from 'lucide-react'
 import { FC } from 'react'
 
@@ -8,8 +8,6 @@ type AuthenticationProviderProps = {
   authType: AuthType
   changeAuthType: (type: AuthType) => void
 }
-
-const KEY_AUTH_TYPE = 'authType' as const
 
 const providers = ['paotang', 'nextpass']
 

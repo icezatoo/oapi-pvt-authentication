@@ -1,7 +1,6 @@
-import React, { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Shield } from 'lucide-react'
 import { OAuthConfig } from '@/types/oauth'
+import { Shield } from 'lucide-react'
 import { Label } from '../ui/label'
 
 type AuthenticationSettingsProps = {
