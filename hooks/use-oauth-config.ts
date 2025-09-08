@@ -150,7 +150,7 @@ export const useOAuthConfigStore = create<OAuthConfigStore>()(
     },
     {
       name: 'oauth_config_draft',
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => sessionStorage),
     }
   )
 )
