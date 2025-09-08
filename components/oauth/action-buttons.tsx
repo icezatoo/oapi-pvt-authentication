@@ -9,18 +9,11 @@ import { useState } from 'react'
 interface ActionButtonsProps {
   isFormValid: boolean
   onReset: () => void
-  onSave: () => void
   onQrCodeAuth: () => void
   onAppToAppAuth: () => void
 }
 
-export function ActionButtons({ 
-  isFormValid, 
-  onReset, 
-  onSave, 
-  onQrCodeAuth, 
-  onAppToAppAuth 
-}: ActionButtonsProps) {
+export function ActionButtons({ isFormValid, onReset, onQrCodeAuth, onAppToAppAuth }: ActionButtonsProps) {
   const [showResetDialog, setShowResetDialog] = useState(false)
 
   return (
@@ -29,51 +22,22 @@ export function ActionButtons({
         <div className="flex flex-col lg:flex-row gap-4 justify-between items-center">
           <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
             <div className="flex flex-col sm:flex-row gap-3 w-full">
-              <Button 
-                variant="outline" 
-                type="button" 
-                disabled={!isFormValid} 
-                onClick={onQrCodeAuth} 
-                className="flex-1 lg:flex-none"
-              >
+              <Button variant="outline" type="button" disabled={!isFormValid} onClick={onQrCodeAuth} className="flex-1 lg:flex-none">
                 <QrCode className="h-4 w-4 mr-2" />
                 QR Code Auth
               </Button>
-              <Button 
-                variant="outline" 
-                type="button" 
-                disabled={!isFormValid} 
-                onClick={onAppToAppAuth} 
-                className="flex-1 lg:flex-none"
-              >
+              <Button variant="outline" type="button" disabled={!isFormValid} onClick={onAppToAppAuth} className="flex-1 lg:flex-none">
                 <Smartphone className="h-4 w-4 mr-2" />
                 App-to-App Auth
               </Button>
             </div>
-            <Button 
-              variant="ghost" 
-              type="button" 
-              onClick={() => setShowResetDialog(true)} 
-              className="flex-1 lg:flex-none"
-            >
+            <Button variant="ghost" type="button" onClick={() => setShowResetDialog(true)} className="flex-1 lg:flex-none">
               Reset Configuration
             </Button>
           </div>
-          
+
           <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-            <Button
-              variant="outline"
-              type="button"
-              onClick={onSave}
-              className="flex-1 lg:flex-none"
-            >
-              Save as Draft
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={!isFormValid} 
-              className="flex-1 lg:flex-none min-w-[160px]"
-            >
+            <Button type="submit" disabled={!isFormValid} className="flex-1 lg:flex-none min-w-[160px]">
               {isFormValid ? 'Deploy Configuration' : 'Complete Required Fields'}
             </Button>
           </div>
@@ -83,9 +47,7 @@ export function ActionButtons({
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Reset Configuration</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to reset the configuration? This will clear all fields and cannot be undone.
-              </AlertDialogDescription>
+              <AlertDialogDescription>Are you sure you want to reset the configuration? This will clear all fields and cannot be undone.</AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>

@@ -52,12 +52,12 @@ const useAuth = () => {
 
       const params = new URLSearchParams()
       params.append('client_id', requestBody.client_id)
-      params.append('redirect_uri', requestBody.redirect_uri)
+      params.append('redirect_uri', encodeURIComponent(requestBody.redirect_uri))
       params.append('response_type', 'code')
-      if (scopeString) params.append('scope', scopeString)
-      if (requestBody.state) params.append('state', requestBody.state)
-      if (requestBody.acr) params.append('acr', requestBody.acr)
-      if (requestBody.prompt) params.append('prompt', requestBody.prompt)
+      if (scopeString) params.append('scope', encodeURIComponent(scopeString))
+      if (requestBody.state) params.append('state', encodeURIComponent(requestBody.state))
+      if (requestBody.acr) params.append('acr', encodeURIComponent(requestBody.acr))
+      if (requestBody.prompt) params.append('prompt', encodeURIComponent(requestBody.prompt))
 
       window.location.href = `${baseUrl}oauth2/web/auth?${params.toString()}`
     } catch (error) {

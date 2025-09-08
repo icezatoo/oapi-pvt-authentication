@@ -6,10 +6,9 @@ import { Label } from '@/components/ui/label'
 import { Progress } from '@/components/ui/progress'
 import { ENVIRONMENT_CONFIG } from '@/config/config'
 import useAuth from '@/hooks/use-auth'
-import useOAuthConfig from '@/hooks/use-oauth-config'
+import { useOAuthConfigStore } from '@/hooks/use-oauth-config'
 import { useMutation } from '@tanstack/react-query'
 import { AlertCircle, CheckCircle } from 'lucide-react'
-import { useState } from 'react'
 import { toast } from 'sonner'
 import { ActionButtons } from './oauth/action-buttons'
 import AuthenticationProvider from './oauth/authentication-provider'
@@ -18,9 +17,7 @@ import ClientConfig from './oauth/client-config'
 import EnvironmentConfig from './oauth/environment-config'
 import Scopes from './oauth/scopes'
 export function OAuthConfiguration() {
-  const { config, updateField, updateScopes, resetConfig: resetConfigHook, saveToStorage, clearStorage, changeAuthType } = useOAuthConfig()
-  const [isTestingConnection, setIsTestingConnection] = useState(false)
-  const [connectionStatus, setConnectionStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const { config, updateField, updateScopes, resetConfig: resetConfigHook, changeAuthType, clearLocalStorage } = useOAuthConfigStore()
   const { qrAuth, fetchApp2AppAuth } = useAuth()
 
   const mutation = useMutation({
@@ -34,20 +31,6 @@ export function OAuthConfiguration() {
       toast.error('App to app authentication failed!')
     },
   })
-
-  const testConnection = async () => {
-    setIsTestingConnection(true)
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      setConnectionStatus('success')
-    } catch {
-      setConnectionStatus('error')
-    } finally {
-      setIsTestingConnection(false)
-      setTimeout(() => setConnectionStatus('idle'), 3000)
-    }
-  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -64,21 +47,11 @@ export function OAuthConfiguration() {
   }
 
   const handleQrAuth = () => {
-    handleSave()
     qrAuth(config)
   }
 
   const handleAppToAppAuth = () => {
     mutation.mutate()
-  }
-
-  const handleSave = () => {
-    const success = saveToStorage()
-    if (success) {
-      toast.success('Configuration saved as draft successfully!')
-    } else {
-      toast.error('Failed to save configuration. Please try again.')
-    }
   }
 
   return (
@@ -87,18 +60,6 @@ export function OAuthConfiguration() {
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center space-x-2">
           <h1 className="text-3xl font-bold tracking-tight">OAuth Configuration</h1>
-          {connectionStatus === 'success' && (
-            <Badge variant="default" className="bg-green-500">
-              <CheckCircle className="h-3 w-3 mr-1" />
-              Connected
-            </Badge>
-          )}
-          {connectionStatus === 'error' && (
-            <Badge variant="destructive">
-              <AlertCircle className="h-3 w-3 mr-1" />
-              Error
-            </Badge>
-          )}
         </div>
         <p className="text-muted-foreground max-w-2xl mx-auto">Configure your OAuth environment settings and client credentials for seamless authentication integration</p>
 
@@ -189,11 +150,9 @@ export function OAuthConfiguration() {
         <ActionButtons
           isFormValid={isFormValid}
           onReset={() => {
-            clearStorage()
+            clearLocalStorage()
             resetConfigHook()
-            setConnectionStatus('idle')
           }}
-          onSave={() => handleSave()}
           onQrCodeAuth={() => handleQrAuth()}
           onAppToAppAuth={() => handleAppToAppAuth()}
         />
