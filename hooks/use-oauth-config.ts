@@ -10,7 +10,7 @@ const createDefaultConfig = (): OAuthConfig => ({
   clientId: '',
   clientSecret: '',
   redirectUri: '',
-  scopes: [],
+  scopes: ['offline', 'openid'],
   acr: 'PIN',
   prompt: '',
   endpoint: '',
@@ -66,6 +66,7 @@ interface OAuthConfigStore {
   config: OAuthConfig
   errors: Partial<Record<keyof OAuthConfig, string>>
   isValid: boolean
+  isLoading: boolean
 
   // Actions
   updateConfig: (updates: Partial<OAuthConfig>) => void
@@ -75,6 +76,7 @@ interface OAuthConfigStore {
   resetConfig: () => void
   changeAuthType: (authType: OAuthConfig['authType']) => void
   clearLocalStorage: () => void
+  setLoading: (isLoading: boolean) => void
 
   // Internal validation update
   _updateValidation: () => void
@@ -98,6 +100,7 @@ export const useOAuthConfigStore = create<OAuthConfigStore>()(
         config: createDefaultConfig(),
         errors: {},
         isValid: false,
+        isLoading: true,
         // clear: clearStorage,
 
         // Actions
@@ -134,6 +137,8 @@ export const useOAuthConfigStore = create<OAuthConfigStore>()(
         clearLocalStorage: () => {
           localStorage.removeItem('oauth_config_draft')
         },
+
+        setLoading: (isLoading: boolean) => set({ isLoading }),
 
         changeAuthType: (authType: OAuthConfig['authType']) => {
           const currentAuthType = get().config.authType

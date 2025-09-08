@@ -18,7 +18,7 @@ const acrOptions = [
     color: 'bg-blue-500',
   },
   {
-    id: 'ALL',
+    id: 'PIN_FACECMP',
     label: 'PIN + Face Comparison',
     description: 'Enhanced biometric security',
     color: 'bg-purple-500',
@@ -33,7 +33,7 @@ const promptOptions = [
     color: 'bg-gray-500',
   },
   {
-    id: 'LOGIN',
+    id: 'login',
     label: 'Login',
     description: 'Standard login prompt',
     color: 'bg-green-500',

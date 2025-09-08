@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
@@ -17,8 +18,13 @@ import ClientConfig from './oauth/client-config'
 import EnvironmentConfig from './oauth/environment-config'
 import Scopes from './oauth/scopes'
 export function OAuthConfiguration() {
-  const { config, updateField, updateScopes, resetConfig: resetConfigHook, changeAuthType, clearLocalStorage } = useOAuthConfigStore()
+  const { config, updateField, updateScopes, resetConfig: resetConfigHook, changeAuthType, clearLocalStorage, isLoading, setLoading } = useOAuthConfigStore()
   const { qrAuth, fetchApp2AppAuth } = useAuth()
+
+  // Set loading to false after initial render when config is loaded
+  useEffect(() => {
+    setLoading(false)
+  }, [setLoading])
 
   const mutation = useMutation({
     mutationFn: () => {
@@ -52,6 +58,17 @@ export function OAuthConfiguration() {
 
   const handleAppToAppAuth = () => {
     mutation.mutate()
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-lg font-medium text-muted-foreground">Loading configuration...</p>
+        </div>
+      </div>
+    )
   }
 
   return (

@@ -31,14 +31,10 @@ export function ActionButtons({ isFormValid, onReset, onQrCodeAuth, onAppToAppAu
                 App-to-App Auth
               </Button>
             </div>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
             <Button variant="ghost" type="button" onClick={() => setShowResetDialog(true)} className="flex-1 lg:flex-none">
               Reset Configuration
-            </Button>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-            <Button type="submit" disabled={!isFormValid} className="flex-1 lg:flex-none min-w-[160px]">
-              {isFormValid ? 'Deploy Configuration' : 'Complete Required Fields'}
             </Button>
           </div>
         </div>
