@@ -1,5 +1,6 @@
 import { AuthResponse, TokenResponse } from '@/types/auth'
 import { OAuthConfig } from '@/types/oauth'
+import { PaotangProfileResponse } from '@/types/paotang-profile'
 
 interface TokenExchangeParams {
   code: string
@@ -87,27 +88,38 @@ const usePaotangAuth = () => {
     })
   }
 
-  // const getProfile = async (accessToken: string): Promise<UserProfile> => {
-  //   const profileUrl = `${process.env.NEXT_PUBLIC_PAOTANG_API_URL || ''}/userinfo`
+  const postProfile = (config: OAuthConfig, accessToken: string): Promise<PaotangProfileResponse> => {
+    return fetch(`${config.url}/api/profile`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({}),
+    }).then((response: Response) => {
+      return response.json()
+    })
+  }
 
-  //   const response = await fetch(profileUrl, {
-  //     headers: {
-  //       Authorization: `Bearer ${accessToken}`,
-  //       'Content-Type': 'application/json',
-  //     },
-  //   })
-
-  //   if (!response.ok) {
-  //     throw new Error('Failed to fetch user profile')
-  //   }
-
-  //   return response.json()
-  // }
+  const postToken = (config: OAuthConfig, accessToken: string): Promise<TokenResponse> => {
+    return fetch(`${config.url}/oauth2/token`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({}),
+    }).then((response: Response) => {
+      return response.json()
+    })
+  }
 
   return {
     postPaotangAuth,
     qrAuth,
     postExchangeToken,
+    postProfile,
+    postToken,
   }
 }
 

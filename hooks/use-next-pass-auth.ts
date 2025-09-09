@@ -1,5 +1,6 @@
 import { AuthResponse } from '@/types/auth'
 import { OAuthConfig } from '@/types/oauth'
+import { PaotangProfileResponse } from '@/types/paotang-profile'
 
 const useNextPassAuth = () => {
   const getRequestBody = (config: OAuthConfig) => {

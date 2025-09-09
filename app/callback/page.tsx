@@ -5,24 +5,24 @@ import { useState } from 'react'
 
 import AuthorizedSection from '@/components/callback/authorized-section'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import useCopy from '@/hooks/use-copy'
 import useOAuthConfigStore from '@/hooks/use-oauth-config'
 import usePaotangAuth from '@/hooks/use-paotang-auth'
-import { TokenResponse } from '@/types/auth'
 import { useMutation } from '@tanstack/react-query'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, Copy } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function CallbackPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { config } = useOAuthConfigStore()
-  const { postExchangeToken } = usePaotangAuth()
+  const { copyToClipboard } = useCopy()
+  const { postExchangeToken, postToken, postProfile } = usePaotangAuth()
   // const { exchangeToken: exchangeNextPassToken, getProfile: getNextPassProfile } = useNextPassAuth()
 
   const [error, setError] = useState<string | null>(null)
-  const [tokenData, setTokenData] = useState<TokenResponse | null>(null)
-  // const [profile, setProfile] = useState<UserProfile | null>(null)
-  // const [copied, setCopied] = useState(false)
 
   const code = searchParams.get('code')
   const state = searchParams.get('state')
@@ -32,17 +32,37 @@ export default function CallbackPage() {
       const result = await postExchangeToken(config, code || '', state || undefined)
       return result
     },
-    // onSuccess: (data) => {
-    //   if (data?.access_token) {
-    //     setTokenData(data || '')
-    //     toast.success('Access token generated successfully!')
-    //   } else {
-    //     toast.success('App to app authentication successful!')
-    //   }
-    // },
     onError: (error) => {
       toast.error('Token exchange failed!')
       setError(error.message)
+    },
+  })
+
+  const {
+    mutate: mutatePaotangProfile,
+    data: profile,
+    error: profileError,
+  } = useMutation({
+    mutationFn: async () => {
+      const result = await postProfile(config, mutationExchangePaotang.data?.access_token || '')
+      return result
+    },
+    onError: (error) => {
+      toast.error('Profile retrieval failed!')
+    },
+  })
+
+  const {
+    mutate: mutatePaotangToken,
+    data: tokenData,
+    error: tokenError,
+  } = useMutation({
+    mutationFn: async () => {
+      const result = await postToken(config, mutationExchangePaotang.data?.access_token || '')
+      return result
+    },
+    onError: (error) => {
+      toast.error('Token exchange failed!')
     },
   })
 
@@ -67,10 +87,11 @@ export default function CallbackPage() {
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Token Information */}
-        {/* <Card>
+        <Card>
           <CardHeader>
             <CardTitle>Token Information</CardTitle>
             <CardDescription>Your OAuth 2.0 token details</CardDescription>
+            <Button onClick={() => mutatePaotangToken()}>Get Token</Button>
           </CardHeader>
           <CardContent className="space-y-4">
             {tokenData && (
@@ -79,18 +100,18 @@ export default function CallbackPage() {
                   <h4 className="text-sm font-medium text-muted-foreground">Access Token</h4>
                   <div className="flex items-center justify-between p-2 bg-muted rounded-md mt-1">
                     <code className="text-xs truncate flex-1">{tokenData.access_token}</code>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 ml-2" onClick={() => copyToClipboard(tokenData.access_token)}>
+                    <Button variant="ghost" size="icon" className="h-6 w-6 ml-2" onClick={() => copyToClipboard(tokenData?.access_token)}>
                       <Copy className="h-3.5 w-3.5" />
                     </Button>
                   </div>
                 </div>
 
-                {tokenData.refresh_token && (
+                {tokenData?.refresh_token && (
                   <div>
                     <h4 className="text-sm font-medium text-muted-foreground">Refresh Token</h4>
                     <div className="flex items-center justify-between p-2 bg-muted rounded-md mt-1">
                       <code className="text-xs truncate flex-1">{tokenData.refresh_token}</code>
-                      <Button variant="ghost" size="icon" className="h-6 w-6 ml-2" onClick={() => copyToClipboard(tokenData.refresh_token)}>
+                      <Button variant="ghost" size="icon" className="h-6 w-6 ml-2" onClick={() => copyToClipboard(tokenData?.refresh_token || '')}>
                         <Copy className="h-3.5 w-3.5" />
                       </Button>
                     </div>
@@ -113,11 +134,17 @@ export default function CallbackPage() {
                 </div>
               </div>
             )}
+            {tokenError && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription className="break-all">{tokenError.message}</AlertDescription>
+              </Alert>
+            )}
           </CardContent>
-        </Card> */}
-
-        {/* User Profile */}
-        {/* <Card>
+        </Card>
+        {/* Profile Information */}
+        <Card>
           <CardHeader>
             <CardTitle>User Profile</CardTitle>
             <CardDescription>Your profile information</CardDescription>
@@ -141,8 +168,15 @@ export default function CallbackPage() {
                 <p>No profile information available</p>
               </div>
             )}
+            {profileError && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription className="break-all">{profileError.message}</AlertDescription>
+              </Alert>
+            )}
           </CardContent>
-        </Card> */}
+        </Card>
       </div>
     </div>
   )
