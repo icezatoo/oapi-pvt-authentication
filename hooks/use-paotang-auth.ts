@@ -1,4 +1,4 @@
-import { AuthResponse, TokenResponse, UserProfile } from '@/types/auth'
+import { AuthResponse, TokenResponse } from '@/types/auth'
 import { OAuthConfig } from '@/types/oauth'
 
 interface TokenExchangeParams {
@@ -23,7 +23,7 @@ const usePaotangAuth = () => {
     }
   }
 
-  const fetchPaotangAuth = (config: OAuthConfig): Promise<AuthResponse> => {
+  const postPaotangAuth = (config: OAuthConfig): Promise<AuthResponse> => {
     if (!config.url) {
       return Promise.reject(new Error('Base URL is not configured'))
     }
@@ -60,12 +60,11 @@ const usePaotangAuth = () => {
 
       window.location.href = `${baseUrl}oauth2/web/auth?${params.toString()}`
     } catch (error) {
-      console.error('QR Auth error:', error)
       throw error // Re-throw to be handled by the caller
     }
   }
 
-  const postExchangeToken = async (config: OAuthConfig, code: string, state?: string): Promise<Response> => {
+  const postExchangeToken = async (config: OAuthConfig, code: string, state?: string): Promise<TokenResponse> => {
     const requestBody = {
       grant_type: 'authorization_code',
       code,
@@ -80,31 +79,35 @@ const usePaotangAuth = () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(requestBody),
+    }).then((response: Response) => {
+      if (!response.ok) {
+        throw new Error('Token exchange failed')
+      }
+      return response.json()
     })
   }
 
-  const getProfile = async (accessToken: string): Promise<UserProfile> => {
-    const profileUrl = `${process.env.NEXT_PUBLIC_PAOTANG_API_URL || ''}/userinfo`
+  // const getProfile = async (accessToken: string): Promise<UserProfile> => {
+  //   const profileUrl = `${process.env.NEXT_PUBLIC_PAOTANG_API_URL || ''}/userinfo`
 
-    const response = await fetch(profileUrl, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-    })
+  //   const response = await fetch(profileUrl, {
+  //     headers: {
+  //       Authorization: `Bearer ${accessToken}`,
+  //       'Content-Type': 'application/json',
+  //     },
+  //   })
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch user profile')
-    }
+  //   if (!response.ok) {
+  //     throw new Error('Failed to fetch user profile')
+  //   }
 
-    return response.json()
-  }
+  //   return response.json()
+  // }
 
   return {
-    fetchPaotangAuth,
+    postPaotangAuth,
     qrAuth,
     postExchangeToken,
-    getProfile,
   }
 }
 

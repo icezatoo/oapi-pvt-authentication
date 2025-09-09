@@ -19,10 +19,11 @@ import AuthenticationSettings from './oauth/authentication-settings'
 import ClientConfig from './oauth/client-config'
 import EnvironmentConfig from './oauth/environment-config'
 import Scopes from './oauth/scopes'
+import { AuthType } from '@/types/oauth'
 export function OAuthConfiguration() {
   const { config, updateField, updateScopes, resetConfig: resetConfigHook, changeAuthType, clearLocalStorage, isLoading, setLoading } = useOAuthConfigStore()
-  const { qrAuth, fetchPaotangAuth } = usePaotangAuth()
-  const { fetchNextPassAuth } = useNextPassAuth()
+  const { qrAuth, postPaotangAuth } = usePaotangAuth()
+  const { postNextPassAuth } = useNextPassAuth()
   const [deepLink, setDeepLink] = useState<string | null>(null)
 
   // Set loading to false after initial render when config is loaded
@@ -32,7 +33,7 @@ export function OAuthConfiguration() {
 
   const mutationPaotangAuth = useMutation({
     mutationFn: async () => {
-      const result = await fetchPaotangAuth(config)
+      const result = await postPaotangAuth(config)
       if (result?.deeplinkUrl) {
         setDeepLink(result.deeplinkUrl)
       }
@@ -46,15 +47,14 @@ export function OAuthConfiguration() {
         toast.success('App to app authentication successful!')
       }
     },
-    onError: (error) => {
-      console.error('Authentication error:', error)
+    onError: () => {
       toast.error('App to app authentication failed!')
     },
   })
 
   const mutationNextPassAuth = useMutation({
     mutationFn: async () => {
-      const result = await fetchNextPassAuth(config)
+      const result = await postNextPassAuth(config)
       if (result?.deeplinkUrl) {
         setDeepLink(result.deeplinkUrl)
       }
@@ -68,8 +68,7 @@ export function OAuthConfiguration() {
         toast.success('App to app authentication successful!')
       }
     },
-    onError: (error) => {
-      console.error('Authentication error:', error)
+    onError: () => {
       toast.error('App to app authentication failed!')
     },
   })
@@ -77,6 +76,13 @@ export function OAuthConfiguration() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     console.log('OAuth Configuration:', config)
+  }
+
+  const handleChangeAuthType = (type: AuthType) => {
+    changeAuthType(type)
+    mutationNextPassAuth.reset()
+    mutationPaotangAuth.reset()
+    setDeepLink(null)
   }
 
   const isFormValid = config.clientId !== '' && config.clientSecret !== '' && config.redirectUri !== '' && config.endpoint !== ''
@@ -136,7 +142,7 @@ export function OAuthConfiguration() {
       <form onSubmit={handleSubmit} className="space-y-8">
         {' '}
         {/* Enhanced Authentication Type Selection */}
-        <AuthenticationProvider authType={config.authType} changeAuthType={changeAuthType} />
+        <AuthenticationProvider authType={config.authType} changeAuthType={handleChangeAuthType} />
         {/* Enhanced Environment Configuration */}
         <EnvironmentConfig environment={config.environment} authType={config.authType} endpoint={config.endpoint} type={config.type} updateField={updateField} />
         {/* Enhanced Client Configuration */}

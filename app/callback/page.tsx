@@ -1,135 +1,73 @@
 'use client'
 
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { AlertCircle, CheckCircle2, Copy } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
+import AuthorizedSection from '@/components/callback/authorized-section'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import useOAuthConfigStore from '@/hooks/use-oauth-config'
-import { TokenResponse, UserProfile } from '@/types/auth'
+import usePaotangAuth from '@/hooks/use-paotang-auth'
+import { TokenResponse } from '@/types/auth'
+import { useMutation } from '@tanstack/react-query'
+import { AlertCircle } from 'lucide-react'
+import { toast } from 'sonner'
 
 export default function CallbackPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { config } = useOAuthConfigStore()
-  // const { exchangeToken: exchangePaotangToken, getProfile: getPaotangProfile } = usePaotangAuth()
+  const { postExchangeToken } = usePaotangAuth()
   // const { exchangeToken: exchangeNextPassToken, getProfile: getNextPassProfile } = useNextPassAuth()
 
-  const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [tokenData, setTokenData] = useState<TokenResponse | null>(null)
-  const [profile, setProfile] = useState<UserProfile | null>(null)
-  const [copied, setCopied] = useState(false)
+  // const [profile, setProfile] = useState<UserProfile | null>(null)
+  // const [copied, setCopied] = useState(false)
 
-  useEffect(() => {
-    const handleCallback = async () => {
-      try {
-        const code = searchParams.get('code')
-        const state = searchParams.get('state')
+  const code = searchParams.get('code')
+  const state = searchParams.get('state')
 
-        if (!code) {
-          throw new Error('Authorization code not found in callback URL')
-        }
+  const mutationExchangePaotang = useMutation({
+    mutationFn: async () => {
+      const result = await postExchangeToken(config, code || '', state || undefined)
+      return result
+    },
+    // onSuccess: (data) => {
+    //   if (data?.access_token) {
+    //     setTokenData(data || '')
+    //     toast.success('Access token generated successfully!')
+    //   } else {
+    //     toast.success('App to app authentication successful!')
+    //   }
+    // },
+    onError: (error) => {
+      toast.error('Token exchange failed!')
+      setError(error.message)
+    },
+  })
 
-        setIsLoading(true)
-
-        // Exchange code for token
-        let tokenResponse
-        // if (config.authType === 'paotang') {
-        //   tokenResponse = await exchangePaotangToken(code, state || undefined)
-        //   if (tokenResponse?.access_token) {
-        //     const profileData = await getPaotangProfile(tokenResponse.access_token)
-        //     setProfile(profileData)
-        //   }
-        // } else {
-        //   tokenResponse = await exchangeNextPassToken(code, state || undefined)
-        //   if (tokenResponse?.access_token) {
-        //     const profileData = await getNextPassProfile(tokenResponse.access_token)
-        //     setProfile(profileData)
-        //   }
-        // }
-
-        // setTokenData(tokenResponse)
-        setError(null)
-      } catch (err) {
-        console.error('Error handling callback:', err)
-        setError(err instanceof Error ? err.message : 'An unknown error occurred')
-      } finally {
-        setIsLoading(false)
-      }
+  const handleExchangeToken = () => {
+    if (!code) {
+      setError('Authorization code not found in callback URL')
+      return
     }
-
-    handleCallback()
-  }, [searchParams, config.authType])
-
-  const copyToClipboard = (text: string | undefined) => {
-    if (!text) return
-    navigator.clipboard.writeText(text)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center space-y-4">
-          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-lg font-medium">Processing authorization...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="container mx-auto p-4 max-w-4xl">
-        <Card className="border-red-200 dark:border-red-900">
-          <CardHeader>
-            <CardTitle className="text-red-600 dark:text-red-400 flex items-center gap-2">
-              <AlertCircle className="h-6 w-6" />
-              {`${config.authType == 'paotang' ? 'Paotang' : 'NextPass'} Authorization Failed`}
-            </CardTitle>
-            <CardDescription>There was an error processing your authorization.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription className="break-all">{error}</AlertDescription>
-            </Alert>
-            <div className="mt-6 flex justify-end">
-              <Button onClick={() => router.push('/')}>Back to Home</Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
+    mutationExchangePaotang.mutate()
   }
 
   return (
     <div className="container mx-auto p-4 max-w-4xl space-y-6">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2 text-green-600 dark:text-green-400">
-                <CheckCircle2 className="h-6 w-6" />
-                {`${config.authType == 'paotang' ? 'Paotang' : 'NextPass'} Authorization Successful`}
-              </CardTitle>
-              <CardDescription>You have successfully authorized the application.</CardDescription>
-            </div>
-            <Button variant="outline" onClick={() => router.push('/')}>
-              Back to Home
-            </Button>
-          </div>
-        </CardHeader>
-      </Card>
+      <AuthorizedSection isLoading={mutationExchangePaotang.isPending} config={config} code={code} state={state} handleBack={() => router.push('/')} handleExchangeToken={handleExchangeToken} />
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription className="break-all">{error}</AlertDescription>
+        </Alert>
+      )}
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Token Information */}
-        <Card>
+        {/* <Card>
           <CardHeader>
             <CardTitle>Token Information</CardTitle>
             <CardDescription>Your OAuth 2.0 token details</CardDescription>
@@ -176,10 +114,10 @@ export default function CallbackPage() {
               </div>
             )}
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* User Profile */}
-        <Card>
+        {/* <Card>
           <CardHeader>
             <CardTitle>User Profile</CardTitle>
             <CardDescription>Your profile information</CardDescription>
@@ -204,7 +142,7 @@ export default function CallbackPage() {
               </div>
             )}
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </div>
   )

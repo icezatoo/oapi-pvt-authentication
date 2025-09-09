@@ -4,7 +4,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import { Check, Copy, ExternalLink, QrCode, RefreshCw, Smartphone, XCircle } from 'lucide-react'
+import { Check, Copy, ExternalLink, Loader2Icon, QrCode, RefreshCw, Smartphone, XCircle } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -58,13 +58,13 @@ export function ActionButtons({ isFormValid, isNextPass, isLoading = false, erro
           <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
             <div className="flex flex-col sm:flex-row gap-3 w-full">
               {!isNextPass && (
-                <Button variant="outline" type="button" disabled={!isFormValid} onClick={onQrCodeAuth} className="flex-1 lg:flex-none">
-                  <QrCode className="h-4 w-4 mr-2" />
+                <Button variant="outline" type="button" disabled={!isFormValid || isLoading} onClick={onQrCodeAuth} className="flex-1 lg:flex-none">
+                  {isLoading ? <Loader2Icon className="animate-spin" /> : <QrCode className="h-4 w-4 mr-2" />}
                   QR Code Auth
                 </Button>
               )}
-              <Button variant="outline" type="button" disabled={!isFormValid} onClick={onAppToAppAuth} className="flex-1 lg:flex-none">
-                <Smartphone className="h-4 w-4 mr-2" />
+              <Button variant="outline" type="button" disabled={!isFormValid || isLoading} onClick={onAppToAppAuth} className="flex-1 lg:flex-none">
+                {isLoading ? <Loader2Icon className="animate-spin" /> : <Smartphone className="h-4 w-4 mr-2" />}
                 App-to-App Auth
               </Button>
             </div>
@@ -101,7 +101,7 @@ export function ActionButtons({ isFormValid, isNextPass, isLoading = false, erro
         {(deepLink || isLoading || error) && (
           <div className="mt-6 space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium">{error ? 'Error' : 'Deep Link'}</h3>
+              <h3 className="text-sm font-medium">{error ? 'Error message' : 'Deep Link'}</h3>
               <div className="flex gap-2">
                 {isLoading ? (
                   <div className="flex items-center space-x-2 text-sm text-muted-foreground">

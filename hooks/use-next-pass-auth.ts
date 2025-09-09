@@ -18,7 +18,7 @@ const useNextPassAuth = () => {
     }
   }
 
-  const fetchNextPassAuth = (config: OAuthConfig): Promise<AuthResponse> => {
+  const postNextPassAuth = (config: OAuthConfig): Promise<AuthResponse> => {
     if (!config.url) {
       return Promise.reject(new Error('Base URL is not configured'))
     }
@@ -35,7 +35,7 @@ const useNextPassAuth = () => {
   }
 
   return {
-    fetchNextPassAuth,
+    postNextPassAuth,
   }
 }
 
