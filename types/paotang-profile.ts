@@ -1,83 +1,84 @@
-// Full Name interfaces
+export interface PaotangProfileResponse {
+  code: string
+  message: string
+  data: Data
+}
+
+export interface Data {
+  cid: string
+  title: string
+  fullNameTh: FullNameTh
+  fullNameEn: FullNameEn
+  gender: string
+  birthDate: string
+  mobileNo: string
+  email: string
+  workProfile: WorkProfile
+  legalAddress: LegalAddress
+  mailingAddress: MailingAddress
+  officeAddress: OfficeAddress
+}
+
 export interface FullNameTh {
-  thaiFirstName?: string
-  thaiLastName?: string
-  thaiMiddleName?: string
+  thaiFirstName: string
+  thaiMiddleName: string
+  thaiLastName: string
 }
 
 export interface FullNameEn {
-  engFirstName?: string
-  engLastName?: string
-  engMiddleName?: string
+  engFirstName: string
+  engMiddleName: string
+  engLastName: string
 }
 
-// ID Card Details interface
-export interface IdCardDetails {
-  dateOfIssue?: string
-  dateOfExpiry?: string
-  placeOfIssue?: string
-}
-
-// Address interfaces
-export interface Address {
-  address?: string
-  district?: string
-  subDistrict?: string
-  stateProv?: string
-  postalCode?: string
-  phoneNo?: string
-}
-
-export interface OfficeAddress extends Address {
-  officeName?: string
-}
-
-// Work Profile interface
 export interface WorkProfile {
-  occupationValue?: string
-  occupationGroupValue?: string
-  subOccupationGroupValue?: string
-  occupationCode?: string
-  occupationGroup?: string
-  salaryValue?: string
+  occupationCode: string
+  occupationValue: string
+  occupationGroup: string
+  occupationGroupValue: string
+  subOccupationGroup: string
+  subOccupationGroupValue: string
+  salary: string
+  salaryValue: string
 }
 
-// Legacy Citizen Card Info interface (deprecated)
-export interface CitizenCardInfo {
-  cid?: string
-  birthDate?: string
-  gender?: string
-  thaiTitle?: string
-  thaiFirstName?: string
-  thaiLastName?: string
-  thaiMiddleName?: string
-  engFirstName?: string
-  engLastName?: string
-  engMiddleName?: string
+export interface LegalAddress {
+  address: string
+  subDistrict: string
+  subDistrictCode: string
+  district: string
+  districtCode: string
+  stateProv: string
+  stateProvCode: string
+  postalCode: string
+  country: string
+  phoneNo: string
 }
 
-// Main Profile Data interface
-export interface ProfileData {
-  cid?: string
-  birthDate?: string
-  gender?: string
-  title?: string
-  mobileNo?: string
-  email?: string
-  fullNameTh?: FullNameTh
-  fullNameEn?: FullNameEn
-  idCardDetails?: IdCardDetails
-  legalAddress?: Address
-  mailingAddress?: Address
-  officeAddress?: OfficeAddress
-  workProfile?: WorkProfile
-  citizenCardInfo?: CitizenCardInfo // Legacy field
+export interface MailingAddress {
+  address: string
+  subDistrict: string
+  subDistrictCode: string
+  district: string
+  districtCode: string
+  stateProv: string
+  stateProvCode: string
+  postalCode: string
+  country: string
+  phoneNo: string
 }
 
-// Main ProfileResponse interface
-export interface PaotangProfileResponse {
-  code?: string
-  message?: string
-  sub?: string
-  data?: ProfileData
+export interface OfficeAddress {
+  officeName: string
+  address: string
+  subDistrict: string
+  subDistrictCode: string
+  district: string
+  districtCode: string
+  stateProv: string
+  stateProvCode: string
+  postalCode: string
+  country: string
+  phoneNo: string
+  phoneExt: string
 }

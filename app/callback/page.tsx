@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import AuthorizedSection from '@/components/callback/authorized-section'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -13,23 +13,28 @@ import usePaotangAuth from '@/hooks/use-paotang-auth'
 import { useMutation } from '@tanstack/react-query'
 import { AlertCircle, Copy } from 'lucide-react'
 import { toast } from 'sonner'
+import useNextPassAuth from '@/hooks/use-next-pass-auth'
 
 export default function CallbackPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { config } = useOAuthConfigStore()
   const { copyToClipboard } = useCopy()
-  const { postExchangeToken, postToken, postProfile } = usePaotangAuth()
-  // const { exchangeToken: exchangeNextPassToken, getProfile: getNextPassProfile } = useNextPassAuth()
+  const { postExchangeToken, postProfile } = usePaotangAuth()
+  const { postNextPassExchangeToken, postNextPassProfile } = useNextPassAuth()
 
   const [error, setError] = useState<string | null>(null)
 
   const code = searchParams.get('code')
   const state = searchParams.get('state')
 
-  const mutationExchangePaotang = useMutation({
+  const {
+    mutate,
+    data: tokenExchange,
+    isPending: isTokenExchangePending,
+  } = useMutation({
     mutationFn: async () => {
-      const result = await postExchangeToken(config, code || '', state || undefined)
+      const result = config.authType === 'nextpass' ? await postNextPassExchangeToken(config, code || '', state || undefined) : await postExchangeToken(config, code || '', state || undefined)
       return result
     },
     onError: (error) => {
@@ -39,30 +44,17 @@ export default function CallbackPage() {
   })
 
   const {
-    mutate: mutatePaotangProfile,
+    mutate: profileMutation,
     data: profile,
     error: profileError,
+    isPending: isProfilePending,
   } = useMutation({
     mutationFn: async () => {
-      const result = await postProfile(config, mutationExchangePaotang.data?.access_token || '')
+      const result = config.authType === 'nextpass' ? await postNextPassProfile(config, tokenExchange?.access_token || '') : await postProfile(config, tokenExchange?.access_token || '')
       return result
     },
     onError: (error) => {
       toast.error('Profile retrieval failed!')
-    },
-  })
-
-  const {
-    mutate: mutatePaotangToken,
-    data: tokenData,
-    error: tokenError,
-  } = useMutation({
-    mutationFn: async () => {
-      const result = await postToken(config, mutationExchangePaotang.data?.access_token || '')
-      return result
-    },
-    onError: (error) => {
-      toast.error('Token exchange failed!')
     },
   })
 
@@ -71,12 +63,20 @@ export default function CallbackPage() {
       setError('Authorization code not found in callback URL')
       return
     }
-    mutationExchangePaotang.mutate()
+    mutate()
   }
+
+  const handleFetchProfile = useCallback(() => {
+    if (tokenExchange?.access_token) {
+      profileMutation()
+    } else {
+      toast.error('Please exchange token first')
+    }
+  }, [tokenExchange, profileMutation])
 
   return (
     <div className="container mx-auto p-4 max-w-4xl space-y-6">
-      <AuthorizedSection isLoading={mutationExchangePaotang.isPending} config={config} code={code} state={state} handleBack={() => router.push('/')} handleExchangeToken={handleExchangeToken} />
+      <AuthorizedSection isLoading={isTokenExchangePending} config={config} code={code} state={state} handleBack={() => router.push('/')} handleExchangeToken={handleExchangeToken} />
       {error && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
@@ -91,27 +91,26 @@ export default function CallbackPage() {
           <CardHeader>
             <CardTitle>Token Information</CardTitle>
             <CardDescription>Your OAuth 2.0 token details</CardDescription>
-            <Button onClick={() => mutatePaotangToken()}>Get Token</Button>
           </CardHeader>
           <CardContent className="space-y-4">
-            {tokenData && (
+            {tokenExchange && (
               <div className="space-y-2">
                 <div>
                   <h4 className="text-sm font-medium text-muted-foreground">Access Token</h4>
                   <div className="flex items-center justify-between p-2 bg-muted rounded-md mt-1">
-                    <code className="text-xs truncate flex-1">{tokenData.access_token}</code>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 ml-2" onClick={() => copyToClipboard(tokenData?.access_token)}>
+                    <code className="text-xs truncate flex-1">{tokenExchange.access_token}</code>
+                    <Button variant="ghost" size="icon" className="h-6 w-6 ml-2" onClick={() => copyToClipboard(tokenExchange?.access_token)}>
                       <Copy className="h-3.5 w-3.5" />
                     </Button>
                   </div>
                 </div>
 
-                {tokenData?.refresh_token && (
+                {tokenExchange?.refresh_token && (
                   <div>
                     <h4 className="text-sm font-medium text-muted-foreground">Refresh Token</h4>
                     <div className="flex items-center justify-between p-2 bg-muted rounded-md mt-1">
-                      <code className="text-xs truncate flex-1">{tokenData.refresh_token}</code>
-                      <Button variant="ghost" size="icon" className="h-6 w-6 ml-2" onClick={() => copyToClipboard(tokenData?.refresh_token || '')}>
+                      <code className="text-xs truncate flex-1">{tokenExchange.refresh_token}</code>
+                      <Button variant="ghost" size="icon" className="h-6 w-6 ml-2" onClick={() => copyToClipboard(tokenExchange?.refresh_token || '')}>
                         <Copy className="h-3.5 w-3.5" />
                       </Button>
                     </div>
@@ -122,24 +121,17 @@ export default function CallbackPage() {
                   <div>
                     <h4 className="text-sm font-medium text-muted-foreground">Token Type</h4>
                     <div className="p-2 bg-muted rounded-md mt-1">
-                      <code className="text-xs">{tokenData.token_type || 'Bearer'}</code>
+                      <code className="text-xs">{tokenExchange.token_type || 'Bearer'}</code>
                     </div>
                   </div>
                   <div>
                     <h4 className="text-sm font-medium text-muted-foreground">Expires In</h4>
                     <div className="p-2 bg-muted rounded-md mt-1">
-                      <code className="text-xs">{tokenData.expires_in} seconds</code>
+                      <code className="text-xs">{tokenExchange.expires_in} seconds</code>
                     </div>
                   </div>
                 </div>
               </div>
-            )}
-            {tokenError && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription className="break-all">{tokenError.message}</AlertDescription>
-              </Alert>
             )}
           </CardContent>
         </Card>
@@ -148,6 +140,9 @@ export default function CallbackPage() {
           <CardHeader>
             <CardTitle>User Profile</CardTitle>
             <CardDescription>Your profile information</CardDescription>
+            <Button disabled={!!tokenExchange || isProfilePending} onClick={handleFetchProfile}>
+              Get Profile
+            </Button>
           </CardHeader>
           <CardContent>
             {profile ? (

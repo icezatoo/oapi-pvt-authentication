@@ -1,6 +1,6 @@
-import { AuthResponse } from '@/types/auth'
+import { AuthResponse, TokenResponse } from '@/types/auth'
+import { UserProfileResponse } from '@/types/nextpass-profile'
 import { OAuthConfig } from '@/types/oauth'
-import { PaotangProfileResponse } from '@/types/paotang-profile'
 
 const useNextPassAuth = () => {
   const getRequestBody = (config: OAuthConfig) => {
@@ -35,7 +35,45 @@ const useNextPassAuth = () => {
     })
   }
 
+  const postNextPassExchangeToken = async (config: OAuthConfig, code: string, state?: string): Promise<TokenResponse> => {
+    const requestBody = {
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: config.redirectUri,
+      client_id: config.clientId,
+      client_secret: config.clientSecret,
+      state,
+    }
+    return fetch(`${config.url}/next-pass/v1/open-api/token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    }).then((response: Response) => {
+      if (!response.ok) {
+        throw new Error('Token exchange failed')
+      }
+      return response.json()
+    })
+  }
+
+  const postNextPassProfile = (config: OAuthConfig, accessToken: string): Promise<UserProfileResponse> => {
+    return fetch(`${config.url}/next-pass/v1/open-api/get-customer-profile`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({}),
+    }).then((response: Response) => {
+      return response.json()
+    })
+  }
+
   return {
+    postNextPassExchangeToken,
+    postNextPassProfile,
     postNextPassAuth,
   }
 }

@@ -101,25 +101,11 @@ const usePaotangAuth = () => {
     })
   }
 
-  const postToken = (config: OAuthConfig, accessToken: string): Promise<TokenResponse> => {
-    return fetch(`${config.url}/oauth2/token`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({}),
-    }).then((response: Response) => {
-      return response.json()
-    })
-  }
-
   return {
     postPaotangAuth,
     qrAuth,
     postExchangeToken,
     postProfile,
-    postToken,
   }
 }
 
