@@ -1,21 +1,21 @@
 'use client'
 
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useCallback, useState } from 'react'
+import { Suspense, useCallback, useState } from 'react'
 
 import AuthorizedSection from '@/components/callback/authorized-section'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import useCopy from '@/hooks/use-copy'
+import useNextPassAuth from '@/hooks/use-next-pass-auth'
 import useOAuthConfigStore from '@/hooks/use-oauth-config'
 import usePaotangAuth from '@/hooks/use-paotang-auth'
 import { useMutation } from '@tanstack/react-query'
 import { AlertCircle, Copy } from 'lucide-react'
 import { toast } from 'sonner'
-import useNextPassAuth from '@/hooks/use-next-pass-auth'
 
-export default function CallbackPage() {
+function CallbackContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { config } = useOAuthConfigStore()
@@ -53,7 +53,7 @@ export default function CallbackPage() {
       const result = config.authType === 'nextpass' ? await postNextPassProfile(config, tokenExchange?.access_token || '') : await postProfile(config, tokenExchange?.access_token || '')
       return result
     },
-    onError: (error) => {
+    onError: () => {
       toast.error('Profile retrieval failed!')
     },
   })
@@ -174,5 +174,13 @@ export default function CallbackPage() {
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function CallbackPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CallbackContent />
+    </Suspense>
   )
 }

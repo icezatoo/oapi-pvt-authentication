@@ -4,7 +4,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import { Check, Copy, ExternalLink, Loader2Icon, QrCode, RefreshCw, Smartphone, XCircle } from 'lucide-react'
+import { Check, Copy, ExternalLink, Loader2Icon, QrCode, Smartphone, XCircle } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 
