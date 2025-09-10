@@ -2,15 +2,12 @@ import { AuthType, Scopes } from '@/types/oauth'
 import { useEffect, useState } from 'react'
 
 const nextPass: Scopes[] = [
-  { id: 'nextpass.offline', name: 'Offline Access', description: 'Access to user offline access information', required: true },
-  { id: 'nextpass.openid', name: 'OpenID', description: 'Access to user OpenID information', required: true },
   { id: 'nextpass.citizen', name: 'Citizen', description: 'Access to user citizen information', required: false },
   { id: 'nextpass.title', name: 'Title', description: 'Access to user title information', required: false },
   { id: 'nextpass.fullname_th', name: 'Fullname Th', description: 'Access to user fullname_th information', required: false },
   { id: 'nextpass.fullname_en', name: 'Fullname En', description: 'Access to user fullname_en information', required: false },
   { id: 'nextpass.gender', name: 'Gender', description: 'Access to user gender information', required: false },
   { id: 'nextpass.birthdate', name: 'Birthdate', description: 'Access to user birthdate information', required: false },
-  { id: 'nextpass.citizen_card_details', name: 'Citizen Card Details', description: 'Access to user citizen_card_details information', required: false },
   { id: 'nextpass.mobile', name: 'Mobile', description: 'Access to user mobile information', required: false },
   { id: 'nextpass.legal_address', name: 'Legal Address', description: 'Access to user legal_address information', required: false },
   { id: 'nextpass.mailing_address', name: 'Mailing Address', description: 'Access to user mailing_address information', required: false },
@@ -19,8 +16,8 @@ const nextPass: Scopes[] = [
   { id: 'nextpass.selfie_image', name: 'Selfie Image', description: 'Access to user selfie_image information', required: false },
 ]
 const paotang: Scopes[] = [
-  { id: 'offline', name: 'Offline Access', description: 'Access to user offline access information', required: true },
-  { id: 'openid', name: 'OpenID', description: 'Access to user OpenID information', required: true },
+  { id: 'offline', name: 'Offline Access', description: 'Access to user offline access information', required: false },
+  { id: 'openid', name: 'OpenID', description: 'Access to user OpenID information', required: false },
   { id: 'paotangid.citizen', name: 'Citizen', description: 'Access to user citizen information', required: false },
   { id: 'paotangid.title', name: 'Title', description: 'Access to user title information', required: false },
   { id: 'paotangid.fullname_th', name: 'Fullname Th', description: 'Access to user fullname_th information', required: false },

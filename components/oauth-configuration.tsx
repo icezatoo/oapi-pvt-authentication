@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react'
 import useNextPassAuth from '@/hooks/use-next-pass-auth'
 import { useOAuthConfigStore } from '@/hooks/use-oauth-config'
 import usePaotangAuth from '@/hooks/use-paotang-auth'
+import { AuthType } from '@/types/oauth'
 import { useMutation } from '@tanstack/react-query'
 import { AlertCircle, CheckCircle } from 'lucide-react'
 import { toast } from 'sonner'
@@ -19,7 +20,7 @@ import AuthenticationSettings from './oauth/authentication-settings'
 import ClientConfig from './oauth/client-config'
 import EnvironmentConfig from './oauth/environment-config'
 import Scopes from './oauth/scopes'
-import { AuthType } from '@/types/oauth'
+
 export function OAuthConfiguration() {
   const { config, updateField, updateScopes, resetConfig: resetConfigHook, changeAuthType, clearLocalStorage, isLoading, setLoading } = useOAuthConfigStore()
   const { qrAuth, postPaotangAuth } = usePaotangAuth()
@@ -44,11 +45,12 @@ export function OAuthConfiguration() {
         setDeepLink(data.deeplinkUrl)
         toast.success('Deep link generated successfully!')
       } else {
-        toast.success('App to app authentication successful!')
+        setDeepLink('')
       }
     },
     onError: () => {
       toast.error('App to app authentication failed!')
+      setDeepLink('')
     },
   })
 
@@ -65,17 +67,17 @@ export function OAuthConfiguration() {
         setDeepLink(data.deeplinkUrl)
         toast.success('Deep link generated successfully!')
       } else {
-        toast.success('App to app authentication successful!')
+        setDeepLink('')
       }
     },
     onError: () => {
+      setDeepLink('')
       toast.error('App to app authentication failed!')
     },
   })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('OAuth Configuration:', config)
   }
 
   const handleChangeAuthType = (type: AuthType) => {

@@ -24,20 +24,23 @@ const usePaotangAuth = () => {
     }
   }
 
-  const postPaotangAuth = (config: OAuthConfig): Promise<AuthResponse> => {
+  const postPaotangAuth = async (config: OAuthConfig): Promise<AuthResponse> => {
     if (!config.url) {
       return Promise.reject(new Error('Base URL is not configured'))
     }
-    const requestBody = getRequestBody(config)
-    return fetch(`${config.url}/oauth2/app2app/auth`, {
+    const requestBody = { tokenUrl: `${config.url}/oauth2/app2app/auth`, ...getRequestBody(config) }
+    const response = await fetch('/api/auth', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(requestBody),
-    }).then((response: Response) => {
-      return response.json()
     })
+    const data = await response.json()
+    if (!response.ok) {
+      return Promise.reject(data)
+    }
+    return data
   }
 
   const qrAuth = (config: OAuthConfig): void => {
@@ -73,32 +76,39 @@ const usePaotangAuth = () => {
       client_id: config.clientId,
       client_secret: config.clientSecret,
       state,
+      tokenUrl: `${config.url}/oauth2/token`,
     }
-    return fetch(`${config.url}/oauth2/token`, {
+    const response = await fetch('/api/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(requestBody),
-    }).then((response: Response) => {
-      if (!response.ok) {
-        throw new Error('Token exchange failed')
-      }
-      return response.json()
     })
+    const data = await response.json()
+    if (!response.ok) {
+      return Promise.reject(data)
+    }
+    return data
   }
 
-  const postProfile = (config: OAuthConfig, accessToken: string): Promise<PaotangProfileResponse> => {
-    return fetch(`${config.url}/api/profile`, {
+  const postProfile = async (config: OAuthConfig, accessToken: string): Promise<PaotangProfileResponse> => {
+    const requestBody = {
+      profileUrl: `${config.url}/api/profile`,
+      accessToken,
+    }
+    const response = await fetch('/api/profile', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({}),
-    }).then((response: Response) => {
-      return response.json()
+      body: JSON.stringify(requestBody),
     })
+    const data = await response.json()
+    if (!response.ok) {
+      return Promise.reject(data)
+    }
+    return data
   }
 
   return {

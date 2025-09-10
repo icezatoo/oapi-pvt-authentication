@@ -15,24 +15,28 @@ const useNextPassAuth = () => {
       scope: config.scopes || [],
       acr: config.acr || '',
       prompt: config.prompt || '',
-      state: config.state || 'random',
+      state: config.state || '2b88e97bd11b4dababaf524eeb20be8a',
     }
   }
 
-  const postNextPassAuth = (config: OAuthConfig): Promise<AuthResponse> => {
+  const postNextPassAuth = async (config: OAuthConfig): Promise<AuthResponse> => {
     if (!config.url) {
       return Promise.reject(new Error('Base URL is not configured'))
     }
-    const requestBody = getRequestBody(config)
-    return fetch(`${config.url}/next-pass/v1/open-api/app2app/auth`, {
+    const requestBody = { tokenUrl: `${config.url}/next-pass/v1/open-api/app2app/auth`, ...getRequestBody(config) }
+
+    const response = await fetch('/api/auth', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(requestBody),
-    }).then((response: Response) => {
-      return response.json()
     })
+    const data = await response.json()
+    if (!response.ok) {
+      return Promise.reject(data)
+    }
+    return data
   }
 
   const postNextPassExchangeToken = async (config: OAuthConfig, code: string, state?: string): Promise<TokenResponse> => {
@@ -43,32 +47,39 @@ const useNextPassAuth = () => {
       client_id: config.clientId,
       client_secret: config.clientSecret,
       state,
+      tokenUrl: `${config.url}/next-pass/v1/open-api/token`,
     }
-    return fetch(`${config.url}/next-pass/v1/open-api/token`, {
+    const response = await fetch('/api/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(requestBody),
-    }).then((response: Response) => {
-      if (!response.ok) {
-        throw new Error('Token exchange failed')
-      }
-      return response.json()
     })
+    const data = await response.json()
+    if (!response.ok) {
+      return Promise.reject(data)
+    }
+    return data
   }
 
-  const postNextPassProfile = (config: OAuthConfig, accessToken: string): Promise<UserProfileResponse> => {
-    return fetch(`${config.url}/next-pass/v1/open-api/get-customer-profile`, {
+  const postNextPassProfile = async (config: OAuthConfig, accessToken: string): Promise<UserProfileResponse> => {
+    const requestBody = {
+      profileUrl: `${config.url}/next-pass/v1/open-api/get-customer-profile`,
+      accessToken,
+    }
+    const response = await fetch('/api/profile', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({}),
-    }).then((response: Response) => {
-      return response.json()
+      body: JSON.stringify(requestBody),
     })
+    const data = await response.json()
+    if (!response.ok) {
+      return Promise.reject(data)
+    }
+    return data
   }
 
   return {

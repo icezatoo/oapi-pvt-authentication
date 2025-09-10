@@ -144,7 +144,7 @@ export const useOAuthConfigStore = create<OAuthConfigStore>()(
           const currentAuthType = get().config.authType
           if (currentAuthType !== authType) {
             set({
-              config: { ...createDefaultConfig(), authType },
+              config: { ...createDefaultConfig(), authType, endpoint: authType === 'nextpass' ? 'https://nextpass-sample-app.web.app/' : '' },
             })
             updateValidation()
           }
