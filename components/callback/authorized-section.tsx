@@ -27,11 +27,11 @@ const AuthorizedSection: FC<AuthorizedSectionProps> = ({ isLoading, config, code
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="flex items-center gap-2 text-green-600 dark:text-green-400">
+            <CardTitle className={`flex items-center gap-2 ${config.authType == 'paotang' ? 'text-blue-600 dark:text-blue-400' : 'text-green-600 dark:text-green-400'}`}>
               <CheckCircle2 className="h-6 w-6" />
-              {`${config.authType == 'paotang' ? 'Paotang' : 'NextPass'} Authorization Successful`}
+              {`${config.authType == 'paotang' ? 'Paotang' : 'NextPass'} Authorization ${code ? 'Successful' : 'Pending'}`}
             </CardTitle>
-            <CardDescription>You have successfully authorized the application.</CardDescription>
+            <CardDescription>{code ? 'You have successfully authorized the application.' : 'Waiting for authorization code...'}</CardDescription>
           </div>
           <Button variant="outline" onClick={handleBack}>
             Back to Home
@@ -39,27 +39,39 @@ const AuthorizedSection: FC<AuthorizedSectionProps> = ({ isLoading, config, code
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="flex flex-col gap-2">
-          <h4 className="text-sm font-medium text-muted-foreground">Authorized Code</h4>
-          <div className="flex items-center justify-between p-2 bg-muted rounded-md mt-1">
-            <code className="text-xs truncate flex-1">{code}</code>
-            <Button variant="ghost" size="icon" className="h-6 w-6 ml-2" onClick={() => copyToClipboard(code || '')}>
-              <Copy className="h-3.5 w-3.5" />
+        {code ? (
+          <>
+            <div className="flex flex-col gap-2">
+              <h4 className="text-sm font-medium text-muted-foreground">Authorized Code</h4>
+              <div className="flex items-center justify-between p-2 bg-muted rounded-md mt-1">
+                <code className="text-xs truncate flex-1">{code}</code>
+                <Button variant="ghost" size="icon" className="h-6 w-6 ml-2" onClick={() => copyToClipboard(code)}>
+                  <Copy className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+              {state && (
+                <>
+                  <h4 className="text-sm font-medium text-muted-foreground">State Parameter</h4>
+                  <div className="flex items-center justify-between p-2 bg-muted rounded-md mt-1">
+                    <code className="text-xs truncate flex-1">{state}</code>
+                    <Button variant="ghost" size="icon" className="h-6 w-6 ml-2" onClick={() => copyToClipboard(state)}>
+                      <Copy className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+            <Button className="w-full" onClick={handleExchangeToken} disabled={!handleExchangeToken}>
+              {isLoading && <Loader2Icon className="animate-spin mr-2" />}
+              Exchange Token
             </Button>
+          </>
+        ) : (
+          <div className="text-center py-4 text-muted-foreground">
+            <p>No authorization code received. Please check the URL or try again.</p>
           </div>
-          <h4 className="text-sm font-medium text-muted-foreground">State Parameter</h4>
-          <div className="flex items-center justify-between p-2 bg-muted rounded-md mt-1">
-            <code className="text-xs truncate flex-1">{state}</code>
-            <Button variant="ghost" size="icon" className="h-6 w-6 ml-2" onClick={() => copyToClipboard(state || '')}>
-              <Copy className="h-3.5 w-3.5" />
-            </Button>
-          </div>
-        </div>
-        <Button className="w-full" onClick={handleExchangeToken}>
-          {isLoading && <Loader2Icon className="animate-spin" />}
-          Exchange Token
-        </Button>
-        <Button variant="secondary" className="w-full" onClick={() => handleCopyURL()}>
+        )}
+        <Button variant="secondary" className="w-full" onClick={handleCopyURL}>
           Copy URL for Desktop
         </Button>
       </CardContent>
