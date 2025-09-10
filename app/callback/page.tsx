@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useState } from 'react'
+import { LoadingPage } from '@/components/ui/loading'
 
 import AuthorizedSection from '@/components/callback/authorized-section'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -179,7 +180,7 @@ function CallbackContent() {
 
 export default function CallbackPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<LoadingPage />}>
       <CallbackContent />
     </Suspense>
   )
