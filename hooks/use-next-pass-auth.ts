@@ -47,6 +47,7 @@ const useNextPassAuth = () => {
       client_id: config.clientId,
       client_secret: config.clientSecret,
       state,
+      scope: config?.scopes || [],
       tokenUrl: `${config.url}/next-pass/v1/open-api/token`,
     }
     const response = await fetch('/api/token', {

@@ -76,6 +76,7 @@ const usePaotangAuth = () => {
       client_id: config.clientId,
       client_secret: config.clientSecret,
       state,
+      scope: config?.scopes || [],
       tokenUrl: `${config.url}/oauth2/token`,
     }
     const response = await fetch('/api/token', {

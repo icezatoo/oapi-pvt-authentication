@@ -10,7 +10,7 @@ const createDefaultConfig = (): OAuthConfig => ({
   clientId: '',
   clientSecret: '',
   redirectUri: '',
-  scopes: ['offline', 'openid'],
+  scopes: [],
   acr: 'PIN',
   prompt: '',
   endpoint: '',
