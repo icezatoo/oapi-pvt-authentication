@@ -15,6 +15,7 @@ import usePaotangAuth from '@/hooks/use-paotang-auth'
 import { useMutation } from '@tanstack/react-query'
 import { AlertCircle, Copy } from 'lucide-react'
 import { toast } from 'sonner'
+import { json } from 'stream/consumers'
 
 function CallbackContent() {
   const searchParams = useSearchParams()
@@ -51,7 +52,7 @@ function CallbackContent() {
     isPending: isProfilePending,
   } = useMutation({
     mutationFn: async () => {
-      const result = config.authType === 'nextpass' ? await postNextPassProfile(config, tokenExchange?.access_token || '') : await postProfile(config, tokenExchange?.access_token || '')
+      const result = config.authType === 'nextpass' ? await postNextPassProfile(config, tokenExchange) : await postProfile(config, tokenExchange?.access_token || '')
       return result
     },
     onError: () => {
@@ -141,22 +142,21 @@ function CallbackContent() {
           <CardHeader>
             <CardTitle>User Profile</CardTitle>
             <CardDescription>Your profile information</CardDescription>
-            <Button disabled={!!tokenExchange || isProfilePending} onClick={handleFetchProfile}>
-              Get Profile
-            </Button>
+            <Button onClick={handleFetchProfile}>Get Profile</Button>
           </CardHeader>
           <CardContent>
             {profile ? (
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  {Object.entries(profile).map(([key, value]) => (
-                    <div key={key}>
-                      <h4 className="text-sm font-medium text-muted-foreground capitalize">{key.replace(/_/g, ' ')}</h4>
-                      <div className="p-2 bg-muted rounded-md mt-1 break-words">
-                        <p className="text-sm">{String(value)}</p>
-                      </div>
-                    </div>
-                  ))}
+                <div className="relative">
+                  <pre className="bg-muted/50 border p-4 rounded-lg overflow-auto text-sm font-mono max-h-96 pr-12">{JSON.stringify(profile, null, 2)}</pre>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-2 right-2 h-8 w-8 bg-background/80 hover:bg-background border shadow-sm"
+                    onClick={() => copyToClipboard(JSON.stringify(profile, null, 2))}
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
             ) : (

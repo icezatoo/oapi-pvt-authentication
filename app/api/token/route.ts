@@ -5,12 +5,22 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { tokenUrl, ...requestBody } = body
 
+    // Convert the request body to URLSearchParams for form-encoded data
+    const formData = new URLSearchParams()
+
+    // Add each field from requestBody to the form data
+    Object.entries(requestBody).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, String(value))
+      }
+    })
+
     const response = await fetch(tokenUrl, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: JSON.stringify(requestBody),
+      body: formData.toString(),
     })
 
     const data = await response.json()
@@ -21,7 +31,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(data, { status: response.status })
     }
   } catch (error) {
-    console.error('Token API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

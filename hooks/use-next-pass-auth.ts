@@ -64,10 +64,10 @@ const useNextPassAuth = () => {
     return data
   }
 
-  const postNextPassProfile = async (config: OAuthConfig, accessToken: string): Promise<UserProfileResponse> => {
+  const postNextPassProfile = async (config: OAuthConfig, tokenResponse: TokenResponse | undefined): Promise<UserProfileResponse> => {
     const requestBody = {
       profileUrl: `${config.url}/next-pass/v1/open-api/get-customer-profile`,
-      accessToken,
+      ...tokenResponse,
     }
     const response = await fetch('/api/profile', {
       method: 'POST',

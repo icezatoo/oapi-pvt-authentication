@@ -98,7 +98,7 @@ const usePaotangAuth = () => {
       profileUrl: `${config.url}/api/profile`,
       accessToken,
     }
-    const response = await fetch('/api/profile', {
+    const response = await fetch('/api/profile-paotang', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
