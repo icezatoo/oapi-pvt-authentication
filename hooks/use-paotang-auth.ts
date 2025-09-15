@@ -79,7 +79,7 @@ const usePaotangAuth = () => {
       scope: config?.scopes || [],
       tokenUrl: `${config.url}/oauth2/token`,
     }
-    const response = await fetch('/api/token', {
+    const response = await fetch('/api/token-paotang', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
