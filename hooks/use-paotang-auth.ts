@@ -49,20 +49,13 @@ const usePaotangAuth = () => {
         throw new Error('Base URL is not configured')
       }
 
-      const requestBody = getRequestBody(config)
-      const baseUrl = config.url.endsWith('/') ? config.url : `${config.url}/`
-      const scopeString = requestBody.scope.join(' ')
+      const scopeString = config.scopes.join(' ')
+      const baseURL = config.environment === 'production' ? `${config.urlQR}/oauth2/web/auth` : config.urlQR
+      const redirectUrl = `${baseURL}?client_id=${encodeURIComponent(config.clientId)}&redirect_uri=${encodeURIComponent(config.redirectUri)}&response_type=code&scope=${encodeURIComponent(
+        scopeString
+      )}&state=${encodeURIComponent(config.state)}&acr=${encodeURIComponent(config.acr)}&prompt=${encodeURIComponent(config.prompt)}`
 
-      const params = new URLSearchParams()
-      params.append('client_id', requestBody.client_id)
-      params.append('redirect_uri', encodeURIComponent(requestBody.redirect_uri))
-      params.append('response_type', 'code')
-      if (scopeString) params.append('scope', encodeURIComponent(scopeString))
-      if (requestBody.state) params.append('state', encodeURIComponent(requestBody.state))
-      if (requestBody.acr) params.append('acr', encodeURIComponent(requestBody.acr))
-      if (requestBody.prompt) params.append('prompt', encodeURIComponent(requestBody.prompt))
-
-      window.location.href = `${baseUrl}oauth2/web/auth?${params.toString()}`
+      window.location.href = redirectUrl
     } catch (error) {
       throw error // Re-throw to be handled by the caller
     }
@@ -95,7 +88,7 @@ const usePaotangAuth = () => {
 
   const postProfile = async (config: OAuthConfig, accessToken: string): Promise<PaotangProfileResponse> => {
     const requestBody = {
-      profileUrl: `${config.url}/api/profile`,
+      profileUrl: buildProfileUrl(config),
       accessToken,
     }
     const response = await fetch('/api/profile-paotang', {
@@ -110,6 +103,32 @@ const usePaotangAuth = () => {
       return Promise.reject(data)
     }
     return data
+  }
+
+  const buildProfileUrl = (config: OAuthConfig) => {
+    const sandboxPrefix = config.type === 'sandbox' ? 'sandbox-' : ''
+    const endpointPath = config.endpoint === 'paotangid' ? 'paotangid' : 'paotangpass'
+    const profileEndpoint = config.type === 'sandbox' ? `get-customer-profile-sandbox` : `get-customer-profile`
+
+    const mapenv: Record<string, string> = {
+      development: 'sit',
+      uat: 'uat',
+      production: 'prd',
+    }
+
+    if (config.environment === 'production') {
+      const baseUrl =
+        config.type === 'sandbox'
+          ? `https://paotang-openapi-sandbox.devops.krungthai.com/v1/${endpointPath}/${profileEndpoint}`
+          : `https://paotang-openapi.devops.krungthai.com/v1/${endpointPath}/${profileEndpoint}`
+      return baseUrl
+    } else {
+      const baseUrl =
+        config.type === 'sandbox'
+          ? `https://paotang-openapi-${sandboxPrefix}${mapenv[config.environment]}.th-service.co.in/v1/${endpointPath}/${profileEndpoint}`
+          : `https://paotang-openapi-${mapenv[config.environment]}.th-service.co.in/v1/${endpointPath}/${profileEndpoint}`
+      return baseUrl
+    }
   }
 
   return {

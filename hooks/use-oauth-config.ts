@@ -15,6 +15,7 @@ const createDefaultConfig = (): OAuthConfig => ({
   prompt: '',
   endpoint: '',
   url: '',
+  urlQR: '',
   state: '',
 })
 
@@ -155,7 +156,7 @@ export const useOAuthConfigStore = create<OAuthConfigStore>()(
     },
     {
       name: 'oauth_config_draft',
-      storage: createJSONStorage(() => sessionStorage),
+      storage: createJSONStorage(() => localStorage),
     }
   )
 )

@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ENDPOINT_CONFIG, ENVIRONMENT_CONFIG, TYPE_CONFIG } from '@/config/config'
+import { ENDPOINT_CONFIG, ENVIRONMENT_CONFIG, QR_CONFIG, TYPE_CONFIG } from '@/config/config'
 import { ApplicationType, AuthType, Environment, EnvironmentDetails, OAuthConfig, TypeDetails } from '@/types/oauth'
 import { Settings } from 'lucide-react'
 import { FC } from 'react'
@@ -123,6 +123,7 @@ const EnvironmentConfig: FC<EnvironmentConfigProps> = ({ environment, endpoint, 
     updateField('type' as keyof OAuthConfig, '')
     updateField('endpoint' as keyof OAuthConfig, '')
     updateField('url' as keyof OAuthConfig, '')
+    updateField('urlQR' as keyof OAuthConfig, '')
   }
 
   const handleTypeSelect = (selectedType: string) => {
@@ -130,13 +131,19 @@ const EnvironmentConfig: FC<EnvironmentConfigProps> = ({ environment, endpoint, 
     // Reset endpoint when type changes
     updateField('endpoint' as keyof OAuthConfig, '')
     updateField('url' as keyof OAuthConfig, '')
+    updateField('urlQR' as keyof OAuthConfig, '')
   }
 
   const handleEndpointSelect = (endpoint: string) => {
     updateField('endpoint' as keyof OAuthConfig, endpoint)
     const selectedEndpoint = ENDPOINT_CONFIG[authType]?.[endpoint]?.[environment]?.[type]
+    const selectedEndpointQR = QR_CONFIG[authType]?.[endpoint]?.[environment]?.[type]
     if (selectedEndpoint) {
       updateField('url' as keyof OAuthConfig, selectedEndpoint)
+    }
+
+    if (selectedEndpointQR) {
+      updateField('urlQR' as keyof OAuthConfig, selectedEndpointQR)
     }
   }
 

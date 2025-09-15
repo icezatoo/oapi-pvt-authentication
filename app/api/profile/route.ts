@@ -3,13 +3,13 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { profileUrl, id_token } = body
+    const { profileUrl, access_token } = body
 
     const response = await fetch(profileUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${id_token}`,
+        Authorization: `Bearer ${access_token}`,
       },
       body: JSON.stringify({}),
     })
