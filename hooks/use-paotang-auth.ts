@@ -69,10 +69,10 @@ const usePaotangAuth = () => {
       client_id: config.clientId,
       client_secret: config.clientSecret,
       state,
-      scope: config?.scopes || [],
+      scope: config?.scopes.join(' ') || [],
       tokenUrl: `${config.url}/oauth2/token`,
     }
-    const response = await fetch('/api/token-paotang', {
+    const response = await fetch('/api/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -89,7 +89,7 @@ const usePaotangAuth = () => {
   const postProfile = async (config: OAuthConfig, accessToken: string): Promise<PaotangProfileResponse> => {
     const requestBody = {
       profileUrl: buildProfileUrl(config),
-      accessToken,
+      access_token: accessToken,
     }
     const response = await fetch('/api/profile-paotang', {
       method: 'POST',

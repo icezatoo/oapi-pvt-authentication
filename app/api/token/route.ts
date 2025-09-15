@@ -24,7 +24,6 @@ export async function POST(request: NextRequest) {
     })
 
     const data = await response.json()
-
     if (response.ok) {
       return NextResponse.json(data)
     } else {
