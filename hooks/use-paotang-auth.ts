@@ -50,12 +50,22 @@ const usePaotangAuth = () => {
       }
 
       const scopeString = config.scopes.join(' ')
-      const baseURL = config.environment === 'production' ? `${config.urlQR}/oauth2/web/auth` : config.urlQR
-      const redirectUrl = `${baseURL}?client_id=${encodeURIComponent(config.clientId)}&redirect_uri=${encodeURIComponent(config.redirectUri)}&response_type=code&scope=${encodeURIComponent(
-        scopeString
-      )}&state=${encodeURIComponent(config.state)}&acr=${encodeURIComponent(config.acr)}&prompt=${encodeURIComponent(config.prompt)}`
+      // const baseUrl = buildAuthBaseUrl()
+      const redirectUrl = `${config.url}/oauth2/web/auth?client_id=${encodeURIComponent(config.clientId)}&redirect_uri=${encodeURIComponent(
+        config.redirectUri
+      )}&response_type=code&scope=${encodeURIComponent(scopeString)}&state=${encodeURIComponent(config.state)}&acr=${encodeURIComponent(config.acr)}&prompt=${encodeURIComponent(config.prompt)}`
 
       window.location.href = redirectUrl
+
+      // https://paotang-pass-external-sit.th-service.co.in/oauth2/web/auth?client_id=970f0266-32e0-4b97-8960-f85d21e263a7&redirect_uri=https%3A%2F%2Fptpass-pvt.vercel.app%2F&response_type=code&scope=offline%20openid&state=7e234857-7755-47d4-834a-62129618b30c&acr=PIN&prompt=login
+
+      // const scopeString = config.scopes.join(' ')
+      // const baseURL = config.environment === 'production' ? `${config.urlQR}/oauth2/web/auth` : config.urlQR
+      // const redirectUrl = `${baseURL}?client_id=${encodeURIComponent(config.clientId)}&redirect_uri=${encodeURIComponent(config.redirectUri)}&response_type=code&scope=${encodeURIComponent(
+      //   scopeString
+      // )}&state=${encodeURIComponent(config.state)}&acr=${encodeURIComponent(config.acr)}&prompt=${encodeURIComponent(config.prompt)}`
+
+      // window.location.href = redirectUrl
     } catch (error) {
       throw error // Re-throw to be handled by the caller
     }
